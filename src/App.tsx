@@ -1,0 +1,308 @@
+import { useState, useCallback } from 'react';
+import GeneratorForm from './components/GeneratorForm';
+import ResultsDisplay from './components/ResultsDisplay';
+import { createGenerator } from './engines';
+import type { GeneratorParams } from './engines';
+import { motion } from 'framer-motion';
+import {
+  Beaker,
+  BarChart3,
+  Cpu,
+  History,
+  Activity
+} from 'lucide-react';
+
+/**
+ * Componente principal de la aplicación PseudoGen.
+ * Gestiona el estado global de la generación, validación y visualización de resultados.
+ */
+function App() {
+  // Estado para almacenar los números generados en la secuencia actual
+  const [numbers, setNumbers] = useState<number[]>([]);
+  // Indica si el motor está trabajando actualmente en la generación de números
+  const [isGenerating, setIsGenerating] = useState(false);
+  // Almacena el nombre del algoritmo activo para mostrarlo en la UI
+  const [methodName, setMethodName] = useState("Lineal Congruencial (Mixto)");
+
+  // Estado para los resultados de la validación matemática y predicción de periodo
+  const [validation, setValidation] = useState<{ errors: string[]; warnings: string[]; isFullPeriod: boolean }>({
+    errors: [],
+    warnings: [],
+    isFullPeriod: false
+  });
+
+  // Información sobre la entropía inyectada si se usa el reloj del sistema
+  const [entropyInfo, setEntropyInfo] = useState<{ active: boolean; offset: number }>({ active: false, offset: 0 });
+
+  // Estado para la detección de ciclos (periodos) en la secuencia generada
+  const [repeatState, setRepeatState] = useState<{ firstValue: number | null; repeatIndex: number | null }>({
+    firstValue: null,
+    repeatIndex: null
+  });
+
+  /**
+   * Función principal que orquestra la generación de números.
+   * Instancia el motor seleccionado, valida parámetros y genera la secuencia asíncronamente
+   * para no bloquear el hilo principal de la UI.
+   */
+  const startGeneration = useCallback(async (params: GeneratorParams) => {
+    let semillaFinal = params.seed;
+    let desplazamiento = 0;
+
+    // Si se activa la entropía temporal, se suma el offset del reloj de sistema
+    if (params.useTimeEntropy) {
+      desplazamiento = Date.now() % 1000;
+      semillaFinal = (params.seed + desplazamiento) % (params.m || 1000);
+    }
+
+    setEntropyInfo({ active: params.useTimeEntropy, offset: desplazamiento });
+
+    // Instanciación del motor seleccionado mediante la factoría
+    const motor = createGenerator(params.method, { ...params, seed: semillaFinal });
+    setMethodName(motor.name);
+
+    // Validación matemática (ej. Teorema de Hull-Dobell)
+    const resultado = motor.validateParams();
+    const esPeriodoCompleto = resultado.isValid && resultado.warnings.length === 0;
+
+    setValidation({ errors: resultado.errors, warnings: resultado.warnings, isFullPeriod: esPeriodoCompleto });
+
+    // Detener si hay errores críticos en los parámetros
+    if (!resultado.isValid) return;
+
+    setIsGenerating(true);
+    setNumbers([]);
+    setRepeatState({ firstValue: null, repeatIndex: null });
+
+    // Limitar la generación según el módulo m o un límite de seguridad para evitar bloqueos
+    const totalAGenerar = params.m + 1;
+    let numerosLocales: number[] = [];
+    let valoresVistos = new Map<number, number>();
+    let primerGenerado: number | null = null;
+    let cicloDetectado = false;
+
+    const LIMITE_SEGURIDAD = 20000;
+    const limiteFinal = Math.min(totalAGenerar, LIMITE_SEGURIDAD);
+
+    // Bucle de generación asíncrona por lotes (batching)
+    for (let i = 0; i < limiteFinal; i++) {
+      const siguienteNum = motor.next();
+      if (i === 0) primerGenerado = siguienteNum;
+
+      // Detección de ciclo: verifica si el número ya existía en la secuencia
+      if (!cicloDetectado && valoresVistos.has(siguienteNum)) {
+        cicloDetectado = true;
+        setRepeatState({ firstValue: primerGenerado, repeatIndex: i });
+      } else if (!cicloDetectado) {
+        valoresVistos.set(siguienteNum, i);
+      }
+
+      numerosLocales.push(siguienteNum);
+
+      // Actualización de la UI por lotes para mantener fluidez visual
+      if (i % (limiteFinal > 500 ? 100 : 10) === 0 || i === limiteFinal - 1) {
+        setNumbers([...numerosLocales]);
+        if (i === 0) setRepeatState(prev => ({ ...prev, firstValue: primerGenerado }));
+
+        // Pequeño delay para permitir que el navegador renderice los frames
+        const retraso = limiteFinal > 1000 ? 1 : 10;
+        await new Promise(resolve => setTimeout(resolve, retraso));
+      }
+    }
+
+    setIsGenerating(false);
+  }, []);
+
+  return (
+    <div className="h-screen bg-bg-dark text-slate-900 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden">
+
+      {/* Ambiente Visual de Fondo */}
+      <div className="fixed inset-0 pointer-events-none opacity-5">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Cabecera Principal */}
+      <header className="px-6 py-3 border-b border-slate-200 bg-white/80 backdrop-blur-xl flex justify-between items-center z-20 shrink-0 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="p-1.5 bg-brand-primary text-white rounded-lg shadow-sm">
+            <Beaker className="w-4 h-4" />
+          </div>
+          <h1 className="text-lg font-black text-slate-900 tracking-widest uppercase">
+            Pseudo<span className="text-brand-primary italic">Gen</span>
+          </h1>
+          <span className="bg-slate-100 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 text-slate-500 uppercase ml-2 tracking-widest">v2.5 Lab</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${isGenerating ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${isGenerating ? 'bg-amber-500 animate-pulse' : 'bg-green-500'}`} />
+            <span className={`text-[9px] font-black uppercase tracking-widest ${isGenerating ? 'text-amber-600' : 'text-green-600'}`}>
+              {isGenerating ? 'Muestreando' : 'En Espera'}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* Espacio de Trabajo de 3 Columnas */}
+      <main className="flex-1 flex overflow-hidden p-4 gap-4 relative z-10">
+
+        {/* IZQUIERDA: Controles del Dashboard */}
+        <aside className="w-72 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
+          <GeneratorForm onGenerate={startGeneration} isLoading={isGenerating} />
+
+          {/* Registro de Entropía Temporal */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+            <h4 className="text-[9px] font-black text-slate-400 tracking-widest uppercase flex items-center gap-2">
+              <History size={12} className="text-brand-primary" /> Log de Entropía
+            </h4>
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500 font-medium">Estado:</span>
+                <span className={entropyInfo.active ? 'text-green-600 font-bold' : 'text-slate-400'}>
+                  {entropyInfo.active ? 'ACTIVO' : 'LISTO'}
+                </span>
+              </div>
+              {entropyInfo.active && (
+                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                  <p className="text-[9px] text-slate-600 leading-tight tabular-nums italic">
+                    Desplazamiento: +{entropyInfo.offset}ms
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white/50 border border-slate-100 border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center opacity-40">
+            <Activity size={32} className="text-slate-300 mb-2" />
+            <p className="text-[8px] uppercase font-black text-slate-400 tracking-[0.2em]">Señal Lista</p>
+          </div>
+        </aside>
+
+        <section className="flex-1 flex flex-col overflow-hidden">
+          <ResultsDisplay
+            numbers={numbers}
+            repeatIndex={repeatState.repeatIndex}
+            methodName={methodName}
+          />
+        </section>
+
+        {/* DERECHA: Analítica del Laboratorio */}
+        <aside className="w-72 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
+
+          {/* Estado del Ciclo (Determinismo) */}
+          <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-200'}`}>
+            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 mb-3">
+              <Cpu size={14} className={repeatState.repeatIndex ? 'text-rose-500 rotate-180' : 'text-slate-400'} />
+              Análisis de Ciclo
+            </h3>
+            {repeatState.repeatIndex ? (
+              <div className="space-y-2">
+                <div className="flex items-baseline gap-1.5 text-rose-600">
+                  <span className="text-3xl font-black tabular-nums">#{repeatState.repeatIndex + 1}</span>
+                  <span className="text-[8px] font-black uppercase">Fase</span>
+                </div>
+                <p className="text-[9px] text-rose-500 uppercase leading-none font-bold">Determinismo detectado</p>
+              </div>
+            ) : (
+              <p className="text-[10px] text-slate-400 italic font-medium">Buscando ciclos en la secuencia...</p>
+            )}
+          </div>
+
+          {/* Validación Matemática y Predicciones */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-4 shadow-sm">
+            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+              <ShieldCheck size={14} className="text-brand-primary" /> Predicción Hull-Dobell
+            </h3>
+
+            <div className={`px-3 py-1.5 rounded-lg text-[9px] font-black text-center border ${validation.isFullPeriod ? 'bg-green-50 border-green-200 text-green-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+              {validation.isFullPeriod ? 'ÓPTIMO (Periodo m)' : 'SUB-ÓPTIMO (Periodo < m)'}
+            </div>
+
+            <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-1">
+              {validation.errors.length > 0 ? (
+                validation.errors.map((err, i) => (
+                  <div key={i} className="text-[9px] text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-100 italic">
+                    {err}
+                  </div>
+                ))
+              ) : validation.isFullPeriod ? (
+                <p className="text-[9px] text-green-600 italic leading-snug font-medium">
+                  Condiciones cumplidas. El generador recorrerá exactamente {numbers.length > 0 ? numbers.length : 'm'} estados únicos.
+                </p>
+              ) : (
+                validation.warnings.map((warn, i) => (
+                  <div key={i} className="text-[9px] text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100 italic">
+                    {warn}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Estadísticas en Tiempo Real */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-4 flex-1 shadow-sm">
+            <h4 className="text-[9px] font-black text-brand-primary uppercase tracking-widest">Estadísticas Lab</h4>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400">
+                  <span>Media (&mu;)</span>
+                  <span className="text-slate-900 tabular-nums">
+                    {numbers.length > 0 ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(4) : "0.0000"}
+                  </span>
+                </div>
+                <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-brand-primary"
+                    initial={{ width: 0 }}
+                    animate={{ width: numbers.length > 0 ? `${(numbers.reduce((a, b) => a + b, 0) / numbers.length) * 100}%` : 0 }}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400">
+                  <span>Eficiencia</span>
+                  <span className={validation.isFullPeriod ? 'text-green-600' : 'text-amber-600 font-bold'}>
+                    {validation.isFullPeriod ? '100%' : '55%'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1" />
+            <div className="pt-4 flex justify-center opacity-20">
+              <BarChart3 size={48} className="text-slate-900" />
+            </div>
+          </div>
+
+        </aside>
+
+      </main>
+
+      {/* Estilos Personalizados para Barras de Desplazamiento */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/**
+ * Icono de Escudo de Validación (SVG Personalizado)
+ */
+const ShieldCheck = ({ size, className }: { size: number, className: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>
+);
+
+export default App;
