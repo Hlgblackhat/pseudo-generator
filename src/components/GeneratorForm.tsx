@@ -58,6 +58,22 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     }, [method]);
 
     /**
+     * Escucha el evento global 'applyAutoCorrect' disparado desde el panel "Sugerencia Lab" en App.tsx.
+     * Muta el estado visualmente para que los inputs reflejen los nuevos parámetros válidos.
+     */
+    useEffect(() => {
+        const handleAutoCorrectEvent = (e: Event) => {
+            const detail = (e as CustomEvent).detail;
+            if (detail) {
+                if (detail.method) setMethod(detail.method);
+                setParams(prev => ({ ...prev, ...detail }));
+            }
+        };
+        window.addEventListener('applyAutoCorrect', handleAutoCorrectEvent);
+        return () => window.removeEventListener('applyAutoCorrect', handleAutoCorrectEvent);
+    }, []);
+
+    /**
      * Sugiere parámetros óptimos consultando directamente al motor del algoritmo activo.
      * Cada motor implementa su propia lógica de sugerencia basada en reglas matemáticas.
      */

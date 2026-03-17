@@ -10,7 +10,9 @@ import {
   BarChart3,
   Cpu,
   History,
-  Activity
+  Activity,
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 
 /**
@@ -41,6 +43,9 @@ function App() {
     repeatIndex: null
   });
 
+  // Almacena los últimos parámetros usados para poder autoevaluar y hacer sugerencias
+  const [lastParams, setLastParams] = useState<GeneratorParams | null>(null);
+
   /**
    * Función principal que orquestra la generación de números.
    * Instancia el motor seleccionado, valida parámetros y genera la secuencia asíncronamente
@@ -57,6 +62,9 @@ function App() {
     }
 
     setEntropyInfo({ active: params.useTimeEntropy, offset: desplazamiento });
+
+    // Guardar los parámetros actuales para posibles auto-correcciones
+    setLastParams(params);
 
     // Instanciación del motor seleccionado mediante la factoría
     const motor = createGenerator(params.method, { ...params, seed: semillaFinal });
@@ -117,6 +125,22 @@ function App() {
 
     setIsGenerating(false);
   }, []);
+
+  /**
+   * Ejecuta la sugerencia inteligente desde el motor y actualiza tanto el formulario como los resultados.
+   */
+  const handleAutoCorrect = useCallback(() => {
+    if (!lastParams) return;
+    const motor = createGenerator(lastParams.method, lastParams);
+    const sugerencias = motor.suggestParams();
+    const nuevosParams = { ...lastParams, ...sugerencias };
+    
+    // Disparamos un evento para que GeneradorForm actualice sus inputs visuales
+    window.dispatchEvent(new CustomEvent('applyAutoCorrect', { detail: nuevosParams }));
+    
+    // Ejecutamos el algoritmo con los nuevos parámetros saneados
+    startGeneration(nuevosParams);
+  }, [lastParams, startGeneration]);
 
   return (
     <div className="h-screen bg-[#f8fafc] dark:bg-bg-dark text-slate-900 dark:text-slate-100 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden transition-colors">
@@ -244,6 +268,25 @@ function App() {
               )}
             </div>
           </div>
+
+          {/* Panel Inteligente de Auto-Corrección (Sugerencia Lab) */}
+          {!validation.isFullPeriod && lastParams && validation.warnings.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-950/20 p-5 rounded-3xl border border-amber-200 dark:border-amber-900 space-y-3 shadow-sm transition-colors animation-fade-in">
+              <h3 className="text-[10px] font-black text-amber-900 dark:text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                <Sparkles size={14} /> Sugerencia Lab
+              </h3>
+              <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium italic leading-relaxed">
+                Los parámetros escogidos no te generan un ciclo completo. Prueba con valores analizados matemáticamente.
+              </p>
+              <button 
+                onClick={handleAutoCorrect}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={12} className={isGenerating ? 'animate-spin' : ''} />
+                AUTO-CORREGIR
+              </button>
+            </div>
+          )}
 
           {/* Estadísticas en Tiempo Real */}
           <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors">
