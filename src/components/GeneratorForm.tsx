@@ -21,6 +21,8 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
         m: 100,
         k: 2, // Retraso para el método Aditivo
         d: 4, // Cantidad de dígitos para Cuadrados Medios
+        j: 7, // Retraso j (LFG)
+        l: 10, // Retraso l (LFG)
         useTimeEntropy: false
     });
 
@@ -101,6 +103,8 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 return 'La semilla debe tener exactamente d dígitos. Semillas "intercaladas" evitan el colapso a 0.';
             case GeneratorMethod.LFSR:
                 return 'La semilla nunca puede ser 0. Usa polinomio primitivo x¹⁶+x¹⁴+x¹³+x¹¹+1 (0xB400).';
+            case GeneratorMethod.LFG:
+                return 'Requiere j < l. El sistema pre-llena el buffer con un LCG para mayor estabilidad.';
             default:
                 return 'Configure los parámetros del algoritmo seleccionado.';
         }
@@ -124,6 +128,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         <option value={GeneratorMethod.ADDITIVE}>Congruencial Aditivo</option>
                         <option value={GeneratorMethod.MIDDLE_SQUARE}>Cuadrados Medios</option>
                         <option value={GeneratorMethod.LFSR}>LFSR (Bits)</option>
+                        <option value={GeneratorMethod.LFG}>Lagged Fibonacci (LFG)</option>
                     </select>
                     <Layers size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -134,7 +139,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                     <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                         <Settings2 size={18} /> Configuración
                     </h2>
-                    {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE) && (
+                    {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE || method === GeneratorMethod.LFG) && (
                         <button
                             type="button"
                             onClick={handleSuggest}
@@ -212,7 +217,32 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         </div>
                     )}
 
-                    {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR) && (
+                    {method === GeneratorMethod.LFG && (
+                        <>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso j</label>
+                                <input
+                                    type="number"
+                                    name="j"
+                                    value={params.j}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso k (l)</label>
+                                <input
+                                    type="number"
+                                    name="l"
+                                    value={params.l}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR && method !== GeneratorMethod.LFG) && (
                         <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
                             <input
