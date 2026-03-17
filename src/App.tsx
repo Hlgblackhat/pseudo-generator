@@ -6,7 +6,7 @@ import { createGenerator } from './engines';
 import type { GeneratorParams } from './engines';
 import { availableTests, runSelectedTests } from './tests';
 import type { TestResult } from './tests';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Beaker,
   BarChart3,
@@ -325,7 +325,7 @@ function App() {
         </section>
 
         {/* DERECHA: Analítica del Laboratorio */}
-        <aside className={`flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1 transition-all duration-500 ease-in-out ${isLabExpanded ? 'w-[45vw]' : 'w-80'}`}>
+        <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
 
           {/* Estado del Ciclo (Determinismo) */}
           <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
@@ -396,18 +396,18 @@ function App() {
             </div>
           )}
 
-          {/* Estadísticas Lab y Resultados de Pruebas */}
-          <div className={`bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-all duration-500 flex flex-col shrink-0 min-h-0 ${isLabExpanded ? 'flex-1' : 'flex-1'}`}>
+          {/* Estadísticas Lab y Resultados de Pruebas (Tarjeta lateral pequeña) */}
+          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
             <div className="flex items-center justify-between shrink-0">
               <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
                 <BarChart3 size={14} /> Estadísticas Lab
               </h4>
               <button 
-                onClick={() => setIsLabExpanded(!isLabExpanded)}
+                onClick={() => setIsLabExpanded(true)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={isLabExpanded ? "Contraer panel" : "Expandir panel"}
+                title="Expandir centro de diagnóstico"
               >
-                {isLabExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                <Maximize2 size={14} />
               </button>
             </div>
             
@@ -479,6 +479,114 @@ function App() {
           </div>
 
         </aside>
+
+        {/* Modal Flotante de Altas Estadísticas */}
+        <AnimatePresence>
+          {isLabExpanded && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm"
+            >
+              <div className="bg-white dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-[2rem] p-6 shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
+                
+                {/* Header Modal */}
+                <div className="flex items-center justify-between mb-6 shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center">
+                      <Library size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                        Centro de Diagnóstico Empírico
+                      </h2>
+                      <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">
+                        Laboratorio de Pruebas: {methodName}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setIsLabExpanded(false)}
+                    className="p-3 rounded-2xl text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                    title="Cerrar diagnóstico"
+                  >
+                    <Minimize2 size={24} />
+                  </button>
+                </div>
+                
+                {/* Layout Principal del Centro (2 Columnas) */}
+                <div className="flex-1 flex gap-6 min-h-0">
+                  
+                  {/* Columna Izquierda: KPIs y Lista de Pruebas */}
+                  <div className="w-[30%] flex flex-col gap-4">
+                    {/* Tarjetas KPI Rápido */}
+                    <div className="grid grid-cols-2 gap-4 shrink-0">
+                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-border-subtle">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Media Global Muestral</span>
+                        <span className="text-xl font-black text-slate-900 dark:text-white tabular-nums">
+                          {numbers.length > 0 ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(4) : "0.0000"}
+                        </span>
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-border-subtle">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Eficiencia Ciclo</span>
+                        <span className={`text-xl font-black ${validation.isFullPeriod ? 'text-green-600 dark:text-green-500' : 'text-amber-500'}`}>
+                          {validation.isFullPeriod ? '100%' : '55%'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Scrollable: Resultados de Pruebas */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+                      <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest pt-2 sticky top-0 bg-white dark:bg-bg-dark pb-2">
+                        Desglose de Pruebas
+                      </h3>
+                      {testResults.length === 0 ? (
+                        <div className="text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl opacity-50">
+                          <p className="text-xs uppercase font-bold text-slate-400">Sin pruebas seleccionadas</p>
+                        </div>
+                      ) : (
+                        testResults.map((result, i) => (
+                          <div key={i} className={`p-4 rounded-2xl border flex flex-col gap-2 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
+                            <div className="flex justify-between items-start">
+                              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
+                                {result.name}
+                              </span>
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
+                                {result.passed ? 'PASS' : 'FAILED'}
+                              </span>
+                            </div>
+                            <p className={`text-[11px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
+                              {result.message}
+                            </p>
+                            <p className="text-[9px] font-mono text-slate-500 mt-1" title={result.details}>
+                              {result.details}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Columna Derecha: Proyección Gráfica */}
+                  <div className="flex-1 bg-slate-50/50 dark:bg-bg-card rounded-[2rem] border border-slate-100 dark:border-border-subtle p-6 flex items-center justify-center relative overflow-hidden">
+                    <div className="text-center text-slate-400 dark:text-slate-500 opacity-60 flex flex-col items-center gap-4">
+                      <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center animate-pulse">
+                        <Activity size={40} />
+                      </div>
+                      <p className="text-sm font-black uppercase tracking-widest max-w-[200px]">
+                        Lienzo preparado para Integración de Gráficos (Recharts)
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
       </main>
 
