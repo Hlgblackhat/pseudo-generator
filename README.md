@@ -2,6 +2,9 @@
 
 Bienvenido a **PseudoGen**, un laboratorio interactivo de alto rendimiento para la generación, visualización y validación de números pseudoaleatorios utilizando 5 métodos clásicos.
 
+### 🎓 Contexto Académico
+Este es un proyecto formal desarrollado dentro del programa de **Ingeniería de Sistemas** en la **Universidad de Cartagena**. Pertenece a la cátedra de **Simulación Digital**, enfocada en el estudio de modelos estocásticos y generación de variables aleatorias.
+
 ## 🗺️ Mapa de Documentación Técnica
 
 ### 1. Fundamentos Matemáticos por Método
@@ -43,3 +46,14 @@ Para validar los resultados rápidamente en la aplicación, sugerimos los siguie
 - **Build Tool:** Vite 8.0
 
 **Nota para el Evaluador:** Todos los motores matemáticos se encuentran localizados en `src/engines/`. No se utilizan librerías externas para la lógica de generación.
+
+---
+
+## 👥 Colaboradores
+| Perfil | Información |
+| :--- | :--- |
+| <img src="https://github.com/Hlgblackhat.png" width="60" style="border-radius: 50%"/> | **Haider** <br/> [@Hlgblackhat](https://github.com/Hlgblackhat) <br/> Universidad de Cartagena |
+
+---
+
+© 2024 PseudoGen Project. Ingeniería de Sistemas.

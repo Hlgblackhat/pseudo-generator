@@ -18,7 +18,8 @@ import {
   RefreshCw,
   Library,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Github
 } from 'lucide-react';
 
 /**
@@ -232,7 +233,7 @@ function App() {
           <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-widest uppercase">
             Pseudo<span className="text-brand-primary italic">Gen</span>
           </h1>
-          <span className="bg-slate-100 dark:bg-slate-800 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase ml-2 tracking-widest">v2.5 Lab</span>
+          <span className="bg-slate-100 dark:bg-slate-800 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase ml-2 tracking-widest text-[9px]">v1.0.0 official</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -242,6 +243,15 @@ function App() {
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
+          <a 
+            href="https://github.com/Hlgblackhat/pseudo-generator" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-brand-primary transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            title="Ver Código en GitHub"
+          >
+            <Github size={18} />
+          </a>
           <ModeToggle />
         </div>
       </header>
@@ -608,6 +618,31 @@ function App() {
           background: rgba(0, 0, 0, 0.2);
         }
       `}</style>
+      <footer className="px-6 py-4 border-t border-slate-200 dark:border-border-subtle bg-white/50 dark:bg-bg-card/50 backdrop-blur-md flex flex-col md:flex-row justify-between items-center gap-4 z-20 shrink-0 mt-auto">
+        <div className="flex items-center gap-4">
+          <div className="text-left">
+            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Proyecto Académico</p>
+            <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Ingeniería de Sistemas - Universidad de Cartagena</p>
+            <p className="text-[9px] text-slate-500 italic">Clase: Simulación Digital</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-border-subtle">
+          <img 
+            src="https://github.com/Hlgblackhat.png" 
+            alt="Colaborador" 
+            className="w-8 h-8 rounded-full border-2 border-brand-primary shadow-sm"
+          />
+          <div className="flex flex-col">
+            <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">Haider</span>
+            <span className="text-[9px] text-brand-primary font-bold">@Hlgblackhat</span>
+          </div>
+        </div>
+
+        <div className="text-right">
+          <p className="text-[10px] text-slate-400 font-medium">© 2024 PseudoGen Project. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
