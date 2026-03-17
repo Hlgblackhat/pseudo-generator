@@ -2,10 +2,18 @@ export * from './types';
 export * from './chiSquare';
 export * from './kolmogorovSmirnov';
 export * from './runsTest';
+export * from './mediasTest';
+export * from './varianzaTest';
+export * from './pokerTest';
+export * from './seriesTest';
 
 import { ChiSquareTest } from './chiSquare';
 import { KolmogorovSmirnovTest } from './kolmogorovSmirnov';
 import { RunsTest } from './runsTest';
+import { MediasTest } from './mediasTest';
+import { VarianzaTest } from './varianzaTest';
+import { PokerTest } from './pokerTest';
+import { SeriesTest } from './seriesTest';
 import type { StatisticalTest } from './types';
 
 /**
@@ -13,7 +21,11 @@ import type { StatisticalTest } from './types';
  */
 export const availableTests: Record<string, StatisticalTest> = {
     chi_square: new ChiSquareTest(),
+    medias: new MediasTest(),
+    varianza: new VarianzaTest(),
     ks: new KolmogorovSmirnovTest(),
+    poker: new PokerTest(),
+    series: new SeriesTest(),
     runs: new RunsTest()
 };
 
