@@ -1,9 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import GeneratorForm from './components/GeneratorForm';
 import ResultsDisplay from './components/ResultsDisplay';
 import { ModeToggle } from './components/mode-toggle';
 import { createGenerator } from './engines';
 import type { GeneratorParams } from './engines';
+import { availableTests, runSelectedTests } from './tests';
+import type { TestResult } from './tests';
 import { motion } from 'framer-motion';
 import {
   Beaker,
@@ -12,7 +14,8 @@ import {
   History,
   Activity,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Library
 } from 'lucide-react';
 
 /**
@@ -45,6 +48,24 @@ function App() {
 
   // Almacena los últimos parámetros usados para poder autoevaluar y hacer sugerencias
   const [lastParams, setLastParams] = useState<GeneratorParams | null>(null);
+
+  // Estado para la gestión de las Pruebas Estadísticas
+  const [selectedTests, setSelectedTests] = useState<string[]>([]);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+
+  // Efecto que recalcula los resultados de las pruebas estadísticas
+  // cuando la generación finaliza, o cuando el usuario activa/desactiva un checkbox posteriormente.
+  useEffect(() => {
+    if (!isGenerating && numbers.length > 0 && selectedTests.length > 0) {
+      try {
+        setTestResults(runSelectedTests(selectedTests, numbers));
+      } catch(e) {
+        console.error("Test Error", e);
+      }
+    } else if (selectedTests.length === 0) {
+      setTestResults([]);
+    }
+  }, [isGenerating, numbers, selectedTests]);
 
   /**
    * Función principal que orquestra la generación de números.
@@ -248,6 +269,39 @@ function App() {
             </div>
           </div>
 
+          {/* Panel de Selección de Pruebas Estadísticas */}
+          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
+            <h4 className="text-[9px] font-black text-slate-400 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
+              <Library size={12} className="text-indigo-500" /> Pruebas Estadísticas
+            </h4>
+            <p className="text-[8px] text-slate-400 leading-tight italic mb-2">
+              Selecciona las pruebas empíricas a ejecutar sobre la secuencia terminada.
+            </p>
+            <div className="space-y-2">
+              {Object.keys(availableTests).map((testId) => {
+                const isSelected = selectedTests.includes(testId);
+                return (
+                  <label key={testId} className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer border hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSelected ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-900/20' : 'border-transparent'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="mt-0.5 w-3 h-3 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 dark:bg-bg-dark"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedTests(prev => [...prev, testId]);
+                        else setSelectedTests(prev => prev.filter(v => v !== testId));
+                      }}
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-bold text-slate-900 dark:text-white leading-tight">
+                        {availableTests[testId].name}
+                      </span>
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+
           <div className="bg-white/50 dark:bg-bg-card/50 border border-slate-100 dark:border-border-subtle border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center opacity-40 transition-colors">
             <Activity size={32} className="text-slate-300 dark:text-slate-300 mb-2" />
             <p className="text-[8px] uppercase font-black text-slate-400 tracking-[0.2em]">Señal Lista</p>
@@ -317,7 +371,7 @@ function App() {
 
           {/* Panel Inteligente de Auto-Corrección (Sugerencia Lab) */}
           {!validation.isFullPeriod && lastParams && validation.warnings.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 p-5 rounded-3xl border border-amber-200 dark:border-amber-900 space-y-3 shadow-sm transition-colors animation-fade-in">
+            <div className="bg-amber-50 dark:bg-amber-950/20 p-5 rounded-3xl border border-amber-200 dark:border-amber-900 space-y-3 shadow-sm transition-colors animation-fade-in shrink-0">
               <h3 className="text-[10px] font-black text-amber-900 dark:text-amber-500 uppercase tracking-widest flex items-center gap-2">
                 <Sparkles size={14} /> Sugerencia Lab
               </h3>
@@ -331,6 +385,36 @@ function App() {
                 <RefreshCw size={12} className={isGenerating ? 'animate-spin' : ''} />
                 AUTO-CORREGIR
               </button>
+            </div>
+          )}
+
+          {/* Resultados de Pruebas Estadísticas */}
+          {testResults.length > 0 && (
+            <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors shrink-0">
+              <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
+                <Library size={14} className="text-indigo-500" /> Diagnóstico Estadístico
+              </h3>
+              
+              <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                {testResults.map((result, i) => (
+                  <div key={i} className={`p-3 rounded-xl border flex flex-col gap-1.5 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
+                    <div className="flex justify-between items-start">
+                      <span className="text-[9px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
+                        {result.name}
+                      </span>
+                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
+                        {result.passed ? 'PASS' : 'FAILED'}
+                      </span>
+                    </div>
+                    <p className={`text-[8px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
+                      {result.message}
+                    </p>
+                    <p className="text-[7px] font-mono text-slate-400 dark:text-slate-500 truncate mt-0.5" title={result.details}>
+                      {result.details}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -396,8 +480,11 @@ function App() {
 /**
  * Icono de Escudo de Validación (SVG Personalizado)
  */
-const ShieldCheck = ({ size, className }: { size: number, className: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>
+const ShieldCheck = ({ size, className }: { size?: number, className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
 );
 
 export default App;
