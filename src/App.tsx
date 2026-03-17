@@ -388,40 +388,14 @@ function App() {
             </div>
           )}
 
-          {/* Resultados de Pruebas Estadísticas */}
-          {testResults.length > 0 && (
-            <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors shrink-0">
-              <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                <Library size={14} className="text-indigo-500" /> Diagnóstico Estadístico
-              </h3>
-              
-              <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-                {testResults.map((result, i) => (
-                  <div key={i} className={`p-3 rounded-xl border flex flex-col gap-1.5 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
-                    <div className="flex justify-between items-start">
-                      <span className="text-[9px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
-                        {result.name}
-                      </span>
-                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
-                        {result.passed ? 'PASS' : 'FAILED'}
-                      </span>
-                    </div>
-                    <p className={`text-[8px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
-                      {result.message}
-                    </p>
-                    <p className="text-[7px] font-mono text-slate-400 dark:text-slate-500 truncate mt-0.5" title={result.details}>
-                      {result.details}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Estadísticas en Tiempo Real */}
-          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors">
-            <h4 className="text-[9px] font-black text-brand-primary uppercase tracking-widest">Estadísticas Lab</h4>
-            <div className="space-y-3">
+          {/* Estadísticas Lab y Resultados de Pruebas */}
+          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
+            <h4 className="text-[10px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2 shrink-0">
+              <BarChart3 size={14} /> Estadísticas Lab
+            </h4>
+            
+            {/* Estadísticas Básicas */}
+            <div className="space-y-3 shrink-0">
               <div className="space-y-1">
                 <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400">
                   <span>Media (&mu;)</span>
@@ -447,10 +421,44 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="flex-1" />
-            <div className="pt-4 flex justify-center opacity-20 transition-opacity">
-              <BarChart3 size={48} className="text-slate-900 dark:text-white" />
-            </div>
+
+            {/* Diagnóstico Estadístico (Pruebas Empíricas) */}
+            {testResults.length > 0 && (
+              <div className="pt-2 border-t border-slate-100 dark:border-border-subtle flex-1 min-h-0 flex flex-col gap-2">
+                <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5 mb-1 shrink-0">
+                  <Library size={12} className="text-indigo-500" /> Diagnóstico Empírico
+                </div>
+                <div className="space-y-2 overflow-y-auto custom-scrollbar pr-1 flex-1">
+                  {testResults.map((result, i) => (
+                    <div key={i} className={`p-3 rounded-xl border flex flex-col gap-1.5 shrink-0 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
+                      <div className="flex justify-between items-start">
+                        <span className="text-[9px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
+                          {result.name}
+                        </span>
+                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
+                          {result.passed ? 'PASS' : 'FAILED'}
+                        </span>
+                      </div>
+                      <p className={`text-[8px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {result.message}
+                      </p>
+                      <p className="text-[7px] font-mono text-slate-400 dark:text-slate-500 truncate mt-0.5" title={result.details}>
+                        {result.details}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {testResults.length === 0 && (
+              <>
+                <div className="flex-1" />
+                <div className="pt-4 flex justify-center opacity-20 transition-opacity shrink-0">
+                  <BarChart3 size={48} className="text-slate-900 dark:text-white" />
+                </div>
+              </>
+            )}
           </div>
 
         </aside>
