@@ -41,13 +41,13 @@ export interface GeneratorParams {
     a?: number; // Multiplicador
     c?: number; // Incremento
     m: number; // Módulo
-    k?: number; // Valor de retraso (Para el método Aditivo)
+    k?: number; // Retraso principal (Aditivo y LFG k)
+    j?: number; // Retraso secundario (LFG j)
     d?: number; // Cantidad de dígitos (Para Cuadrados Medios)
     taps?: number[]; // Puntos de retroalimentación (Para LFSR)
     p?: number; // Primer número primo (BBS)
     q?: number; // Segundo número primo (BBS)
-    j?: number; // Retraso j (LFG)
-    l?: number; // Retraso l (LFG)
     useTimeEntropy: boolean; // Indica si se debe inyectar entropía basada en el reloj
     method: GeneratorMethodType; // Algoritmo seleccionado
 }
+

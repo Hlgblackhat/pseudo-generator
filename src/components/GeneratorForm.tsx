@@ -19,10 +19,9 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
         a: 21,
         c: 3,
         m: 100,
-        k: 2, // Retraso para el método Aditivo
+        k: 2, // Retraso para el método Aditivo y LFG (delay mayor)
         d: 4, // Cantidad de dígitos para Cuadrados Medios
-        j: 7, // Retraso j (LFG)
-        l: 10, // Retraso l (LFG)
+        j: 7, // Retraso j (LFG - delay menor)
         useTimeEntropy: false
     });
 
@@ -230,11 +229,11 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso k (l)</label>
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso mayor ($k$)</label>
                                 <input
                                     type="number"
-                                    name="l"
-                                    value={params.l}
+                                    name="k"
+                                    value={params.k}
                                     onChange={handleChange}
                                     className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                                 />
@@ -242,7 +241,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         </>
                     )}
 
-                    {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR && method !== GeneratorMethod.LFG) && (
+                    {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR) && (
                         <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
                             <input
@@ -254,6 +253,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                             />
                         </div>
                     )}
+
                 </div>
 
                 {/* Ayuda contextual sobre el periodo y parámetros */}

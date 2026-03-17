@@ -15,9 +15,9 @@ export class LFGGenerator implements PRNG {
     private pointer: number;
 
     constructor(params: GeneratorParams) {
-        // En nuestro sistema usamos 'j' y 'l' para representar los lags (j < l)
+        // En nuestro sistema usamos 'j' y 'k' para representar los lags (j < k)
         this.j = params.j || 7;
-        this.k = params.l || 10; 
+        this.k = params.k || 10; 
         this.m = params.m || Math.pow(2, 31);
         
         // Inicializamos el buffer usando un LCG clásico (Mixed Congruential)
@@ -62,7 +62,7 @@ export class LFGGenerator implements PRNG {
         }
 
         if (this.j >= this.k) {
-            errors.push("El retraso j debe ser estrictamente menor que el retraso k (l).");
+            errors.push("El retraso j debe ser estrictamente menor que el retraso k.");
         }
 
         return {
@@ -78,7 +78,7 @@ export class LFGGenerator implements PRNG {
     suggestParams(): Partial<GeneratorParams> {
         return {
             j: 7,
-            l: 10,
+            k: 10,
             m: Math.pow(2, 31),
             seed: 12345
         };
