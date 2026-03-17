@@ -15,7 +15,9 @@ import {
   Activity,
   Sparkles,
   RefreshCw,
-  Library
+  Library,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 
 /**
@@ -52,6 +54,9 @@ function App() {
   // Estado para la gestión de las Pruebas Estadísticas
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
+  
+  // Estado para expandir el panel de analítica
+  const [isLabExpanded, setIsLabExpanded] = useState(false);
 
   // Efecto que recalcula los resultados de las pruebas estadísticas
   // cuando la generación finaliza, o cuando el usuario activa/desactiva un checkbox posteriormente.
@@ -320,7 +325,7 @@ function App() {
         </section>
 
         {/* DERECHA: Analítica del Laboratorio */}
-        <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
+        <aside className={`flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1 transition-all duration-500 ease-in-out ${isLabExpanded ? 'w-[45vw]' : 'w-80'}`}>
 
           {/* Estado del Ciclo (Determinismo) */}
           <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
@@ -392,10 +397,19 @@ function App() {
           )}
 
           {/* Estadísticas Lab y Resultados de Pruebas */}
-          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
-            <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2 shrink-0">
-              <BarChart3 size={14} /> Estadísticas Lab
-            </h4>
+          <div className={`bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-all duration-500 flex flex-col shrink-0 min-h-0 ${isLabExpanded ? 'flex-1' : 'flex-1'}`}>
+            <div className="flex items-center justify-between shrink-0">
+              <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
+                <BarChart3 size={14} /> Estadísticas Lab
+              </h4>
+              <button 
+                onClick={() => setIsLabExpanded(!isLabExpanded)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title={isLabExpanded ? "Contraer panel" : "Expandir panel"}
+              >
+                {isLabExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              </button>
+            </div>
             
             {/* Estadísticas Básicas */}
             <div className="space-y-3 shrink-0">
