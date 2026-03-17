@@ -56,3 +56,18 @@ Cuando el botón se habilita y el usuario hace clic en él:
 1. `App.tsx` dispara un Evento Personalizado (`applyAutoCorrect`).
 2. El formulario (`GeneratorForm.tsx`) capta el evento y actualiza visualmente los `inputs`.
 3. El sistema lanza automáticamente la regeneración de la secuencia (`startGeneration()`) con la data sana, haciendo desaparecer instantáneamente la ventana amarilla y restaurando el estatus a "Óptimo".
+
+---
+
+## 🏷️ Mensajes de Validación Dinámicos
+
+La interfaz gráfica del Laboratorio ha sido diseñada para no hacer suposiciones falaces sobre los algoritmos. A simple vista, el panel derecho informa del estado de salud de la generación.
+
+Dependiendo del test que internamente aplique el motor (`motor.validateParams()`), el panel se adapta reflejando un diagnóstico correcto.
+
+**Ejemplos Reales implementados (cuando todo es válido):**
+*   **Mixto:** Muestra el badge `ÓPTIMO (Periodo m)` confirmando el recorrido *Hull-Dobell.*
+*   **Multiplicativo:** Muestra el badge `ÓPTIMO (Periodo Máx Posible)` asumiendo la división asintótica en 4.
+*   **Aditivo:** Muestra el badge `VALIDADO (Configuración)` confirmando que los retrasos se cumplen.
+*   **Cuadrados Medios:** Muestra el badge `VALIDADO (Experimental)` confirmando semillas.
+*   **LFSR:** Muestra el badge `ÓPTIMO (Semilla Válida)` denotando que el polinomio arrancó bien.
