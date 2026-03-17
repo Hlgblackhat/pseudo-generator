@@ -142,6 +142,21 @@ function App() {
     startGeneration(nuevosParams);
   }, [lastParams, startGeneration]);
 
+  /**
+   * Genera dinámicamente el título del panel de análisis según el método.
+   */
+  const getValidationTitle = () => {
+    if (!lastParams) return 'Predicción Inicial';
+    switch (lastParams.method) {
+      case 'mixed': return 'Análisis Hull-Dobell';
+      case 'multiplicative': return 'Análisis Módulo-Potencia';
+      case 'additive': return 'Análisis de Retrasos';
+      case 'middle_square': return 'Análisis de Von Neumann';
+      case 'lfsr': return 'Análisis Polinomial LFSR';
+      default: return 'Predicción de Periodo';
+    }
+  };
+
   return (
     <div className="h-screen bg-[#f8fafc] dark:bg-bg-dark text-slate-900 dark:text-slate-100 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden transition-colors">
 
@@ -241,7 +256,7 @@ function App() {
           {/* Validación Matemática y Predicciones */}
           <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors">
             <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-              <ShieldCheck size={14} className="text-brand-primary" /> Predicción Hull-Dobell
+              <ShieldCheck size={14} className="text-brand-primary" /> {getValidationTitle()}
             </h3>
 
             <div className={`px-3 py-1.5 rounded-lg text-[9px] font-black text-center border ${validation.isFullPeriod ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900 text-green-700 dark:text-green-400' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400'}`}>
