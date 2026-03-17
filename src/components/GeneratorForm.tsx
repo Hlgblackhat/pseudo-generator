@@ -284,7 +284,6 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                             />
                         </div>
                     )}
-                    
                     <div className="space-y-1 col-span-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Cantidad a Generar ($n$)</label>
                         <input

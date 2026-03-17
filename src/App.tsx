@@ -116,8 +116,8 @@ function App() {
     setNumbers([]);
     setRepeatState({ firstValue: null, repeatIndex: null });
 
-    // Limitar la generación según el módulo m o un límite de seguridad para evitar bloqueos
-    const totalAGenerar = params.m + 1;
+    // Limitar la generación según el módulo m, la preferencia del usuario o un límite de seguridad
+    const totalAGenerar = params.count || (params.m + 1);
     let numerosLocales: number[] = [];
     let valoresVistos = new Map<number, number>();
     let primerGenerado: number | null = null;
