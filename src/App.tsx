@@ -182,6 +182,7 @@ function App() {
       case 'additive': return 'Análisis de Retrasos';
       case 'middle_square': return 'Análisis de Von Neumann';
       case 'lfsr': return 'Análisis Polinomial LFSR';
+      case 'bbs': return 'Análisis de Primos BBS';
       default: return 'Predicción de Periodo';
     }
   };
@@ -198,6 +199,7 @@ function App() {
       case 'additive': return 'VALIDADO (Configuración)';
       case 'middle_square': return 'VALIDADO (Experimental)';
       case 'lfsr': return 'ÓPTIMO (Semilla Válida)';
+      case 'bbs': return 'ENCRIPTACIÓN SEGURA';
       default: return 'ÓPTIMO';
     }
   };
@@ -213,6 +215,7 @@ function App() {
       case 'additive': return 'Parámetros válidos para comenzar la simulación aditiva según los retrasos.';
       case 'middle_square': return 'Semilla aceptada. El algoritmo empírico está listo para iniciar.';
       case 'lfsr': return 'Semilla no nula validada. Polinomio de retroalimentación acoplado.';
+      case 'bbs': return 'Primos p y q validados. El producto M generará un ciclo de alta seguridad.';
       default: return 'Parámetros validados correctamente (Periodo Completo).';
     }
   };
