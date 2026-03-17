@@ -244,13 +244,13 @@ function App() {
       <main className="flex-1 flex overflow-hidden p-4 gap-4 relative z-10">
 
         {/* IZQUIERDA: Controles del Dashboard */}
-        <aside className="w-72 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
+        <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
           <GeneratorForm onGenerate={startGeneration} isLoading={isGenerating} />
 
           {/* Registro de Entropía Temporal */}
           <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
-            <h4 className="text-[9px] font-black text-slate-400 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
-              <History size={12} className="text-brand-primary" /> Log de Entropía
+            <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
+              <History size={14} className="text-brand-primary" /> Log de Entropía
             </h4>
             <div className="space-y-2">
               <div className="flex justify-between text-[10px]">
@@ -271,10 +271,10 @@ function App() {
 
           {/* Panel de Selección de Pruebas Estadísticas */}
           <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
-            <h4 className="text-[9px] font-black text-slate-400 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
-              <Library size={12} className="text-indigo-500" /> Pruebas Estadísticas
+            <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
+              <Library size={14} className="text-indigo-500" /> Pruebas Estadísticas
             </h4>
-            <p className="text-[8px] text-slate-400 leading-tight italic mb-2">
+            <p className="text-[10px] text-slate-500 leading-relaxed italic mb-2">
               Selecciona las pruebas empíricas a ejecutar sobre la secuencia terminada.
             </p>
             <div className="space-y-2">
@@ -292,8 +292,11 @@ function App() {
                       }}
                     />
                     <div className="flex flex-col">
-                      <span className="text-[9px] font-bold text-slate-900 dark:text-white leading-tight">
+                      <span className="text-[10px] font-bold text-slate-900 dark:text-white leading-tight">
                         {availableTests[testId].name}
+                      </span>
+                      <span className="text-[8px] text-slate-500 dark:text-slate-400 leading-tight mt-1">
+                        {availableTests[testId].description}
                       </span>
                     </div>
                   </label>
@@ -317,7 +320,7 @@ function App() {
         </section>
 
         {/* DERECHA: Analítica del Laboratorio */}
-        <aside className="w-72 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
+        <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
 
           {/* Estado del Ciclo (Determinismo) */}
           <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
@@ -390,14 +393,14 @@ function App() {
 
           {/* Estadísticas Lab y Resultados de Pruebas */}
           <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
-            <h4 className="text-[10px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2 shrink-0">
+            <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2 shrink-0">
               <BarChart3 size={14} /> Estadísticas Lab
             </h4>
             
             {/* Estadísticas Básicas */}
             <div className="space-y-3 shrink-0">
               <div className="space-y-1">
-                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400">
+                <div className="flex justify-between text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                   <span>Media (&mu;)</span>
                   <span className="text-slate-900 dark:text-white tabular-nums">
                     {numbers.length > 0 ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(4) : "0.0000"}
@@ -425,24 +428,24 @@ function App() {
             {/* Diagnóstico Estadístico (Pruebas Empíricas) */}
             {testResults.length > 0 && (
               <div className="pt-2 border-t border-slate-100 dark:border-border-subtle flex-1 min-h-0 flex flex-col gap-2">
-                <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5 mb-1 shrink-0">
+                <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-1 shrink-0">
                   <Library size={12} className="text-indigo-500" /> Diagnóstico Empírico
                 </div>
                 <div className="space-y-2 overflow-y-auto custom-scrollbar pr-1 flex-1">
                   {testResults.map((result, i) => (
-                    <div key={i} className={`p-3 rounded-xl border flex flex-col gap-1.5 shrink-0 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
+                    <div key={i} className={`p-4 rounded-xl border flex flex-col gap-2 shrink-0 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
                       <div className="flex justify-between items-start">
-                        <span className="text-[9px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
+                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
                           {result.name}
                         </span>
-                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${result.passed ? 'bg-green-200/50 dark:bg-green-900/50 text-green-700 dark:text-green-400' : 'bg-rose-200/50 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400'}`}>
                           {result.passed ? 'PASS' : 'FAILED'}
                         </span>
                       </div>
-                      <p className={`text-[8px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
+                      <p className={`text-[10px] italic leading-snug ${result.passed ? 'text-green-600 dark:text-green-500' : 'text-rose-600 dark:text-rose-400'}`}>
                         {result.message}
                       </p>
-                      <p className="text-[7px] font-mono text-slate-400 dark:text-slate-500 truncate mt-0.5" title={result.details}>
+                      <p className="text-[8px] font-mono text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed" title={result.details}>
                         {result.details}
                       </p>
                     </div>
