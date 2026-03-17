@@ -22,6 +22,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
         k: 2, // Retraso para el método Aditivo y LFG (delay mayor)
         d: 4, // Cantidad de dígitos para Cuadrados Medios
         j: 7, // Retraso j (LFG - delay menor)
+        count: 100, // Cantidad de números a generar por defecto
         useTimeEntropy: false
     });
 
@@ -253,6 +254,19 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                             />
                         </div>
                     )}
+
+                    <div className="space-y-1 col-span-2">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Cantidad a Generar ($n$)</label>
+                        <input
+                            type="number"
+                            name="count"
+                            value={params.count}
+                            onChange={handleChange}
+                            min="1"
+                            max="20000"
+                            className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm font-bold text-brand-primary dark:text-brand-primary focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums"
+                        />
+                    </div>
 
                 </div>
 

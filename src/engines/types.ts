@@ -47,6 +47,7 @@ export interface GeneratorParams {
     taps?: number[]; // Puntos de retroalimentación (Para LFSR)
     p?: number; // Primer número primo (BBS)
     q?: number; // Segundo número primo (BBS)
+    count?: number; // Cantidad de números a generar deseada
     useTimeEntropy: boolean; // Indica si se debe inyectar entropía basada en el reloj
     method: GeneratorMethodType; // Algoritmo seleccionado
 }

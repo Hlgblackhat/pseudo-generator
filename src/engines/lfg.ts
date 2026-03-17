@@ -79,8 +79,9 @@ export class LFGGenerator implements PRNG {
         return {
             j: 7,
             k: 10,
-            m: Math.pow(2, 31),
-            seed: 12345
+            m: 1000,
+            seed: 12345,
+            count: 100
         };
     }
 }
