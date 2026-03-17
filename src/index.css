@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Paleta de colores principal con acentos negros para un diseño premium */
-  --color-brand-primary: #000000;
-  --color-brand-secondary: #475569;
-  --color-bg-dark: #f8fafc;
-  --color-bg-card: #ffffff;
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-card: var(--bg-card);
+  --color-border-subtle: var(--border-subtle);
 }
 
 :root {
+  /* LIGHT THEME (Original Commit Aesthetics) */
+  --brand-primary: #000000;
+  --brand-secondary: #475569;
+  --bg-dark: #f8fafc;
+  --bg-card: #ffffff;
+  --border-subtle: #e2e8f0;
+  
+  --color-text: #0f172a;
+  
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: var(--color-text);
+  background-color: var(--bg-dark);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.dark {
+  /* DARK THEME (Designed in Feat Branch) */
+  --brand-primary: #3b82f6;
+  --brand-secondary: #94a3b8;
+  --bg-dark: #020617;
+  --bg-card: #0f172a;
+  --border-subtle: #1e293b;
+  
+  --color-text: #f8fafc;
+  
+  color-scheme: dark;
 }
 
 body {
@@ -29,7 +54,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--color-bg-dark);
+  background-color: var(--bg-dark);
+  color: var(--color-text);
 }
 
 #root {

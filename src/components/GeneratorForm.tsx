@@ -1,6 +1,6 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import type { FC } from 'react';
-import { RefreshCw, HelpCircle, Layers, Settings2 } from 'lucide-react';
+import { RefreshCw, HelpCircle, Layers, Settings2, Sparkles } from 'lucide-react';
 import { GeneratorMethod, type GeneratorMethodType } from '../engines/types';
 
 interface GeneratorFormProps {
@@ -56,18 +56,29 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
         }
     }, [method]);
 
+    /**
+     * Sugiere parámetros óptimos para el algoritmo seleccionado.
+     */
+    const handleSuggest = () => {
+        if (method === GeneratorMethod.MIXED) {
+            setParams(prev => ({ ...prev, a: 17, c: 43, m: 100 }));
+        } else if (method === GeneratorMethod.MULTIPLICATIVE) {
+            setParams(prev => ({ ...prev, a: 13, m: 64 }));
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4">
             {/* Selector de Algoritmo */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+            <div className="bg-white dark:bg-bg-card p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-border-subtle transition-colors">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2 block">
                     Algoritmo de Generación
                 </label>
                 <div className="relative">
                     <select
                         value={method}
                         onChange={(e) => setMethod(e.target.value as GeneratorMethodType)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 appearance-none focus:ring-1 focus:ring-black outline-none transition-all cursor-pointer"
+                        className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white appearance-none focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all cursor-pointer"
                     >
                         <option value={GeneratorMethod.MIXED}>Lineal Congruencial (Mixto)</option>
                         <option value={GeneratorMethod.MULTIPLICATIVE}>Congruencial Multiplicativo</option>
@@ -79,97 +90,107 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 gap-4 flex flex-col relative overflow-hidden shrink-0">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-bg-card p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-border-subtle gap-4 flex flex-col relative overflow-hidden shrink-0 transition-colors">
                 <div className="flex justify-between items-center mb-1">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                         <Settings2 size={18} /> Configuración
                     </h2>
+                    {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE) && (
+                        <button
+                            type="button"
+                            onClick={handleSuggest}
+                            className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-brand-primary dark:hover:text-brand-primary transition-colors tooltip"
+                            title="Sugerir valores óptimos"
+                        >
+                            <Sparkles size={16} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                     {/* Parámetro común: Semilla */}
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Semilla ($x_0$)</label>
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Semilla ($x_0$)</label>
                         <input
                             type="number"
                             name="seed"
                             value={params.seed}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none transition-all tabular-nums font-medium"
+                            className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                         />
                     </div>
 
                     {/* Campos dinámicos según el método seleccionado */}
                     {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE) && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mult. ($a$)</label>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Mult. ($a$)</label>
                             <input
                                 type="number"
                                 name="a"
                                 value={params.a}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none transition-all tabular-nums font-medium"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                             />
                         </div>
                     )}
 
                     {method === GeneratorMethod.MIXED && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Incr. ($c$)</label>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Incr. ($c$)</label>
                             <input
                                 type="number"
                                 name="c"
                                 value={params.c}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none transition-all tabular-nums font-medium"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                             />
                         </div>
                     )}
 
                     {method === GeneratorMethod.ADDITIVE && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Retraso ($k$)</label>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso ($k$)</label>
                             <input
                                 type="number"
                                 name="k"
                                 value={params.k}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none transition-all tabular-nums font-medium"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                             />
                         </div>
                     )}
 
                     {method === GeneratorMethod.MIDDLE_SQUARE && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dígitos ($d$)</label>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Dígitos ($d$)</label>
                             <input
                                 type="number"
                                 name="d"
                                 value={params.d}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none transition-all tabular-nums font-medium"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                             />
                         </div>
                     )}
 
                     {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR) && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
                             <input
                                 type="number"
                                 name="m"
                                 value={params.m}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 focus:ring-1 focus:ring-black outline-none font-black transition-all tabular-nums"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none font-black transition-all tabular-nums"
                             />
                         </div>
                     )}
                 </div>
 
                 {/* Ayuda contextual sobre el periodo y parámetros */}
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-2">
-                    <HelpCircle size={14} className="text-slate-400 shrink-0 mt-0.5" />
-                    <p className="text-[9px] text-slate-500 leading-tight italic">
+                <div className="p-3 bg-slate-50 dark:bg-bg-dark rounded-xl border border-slate-100 dark:border-border-subtle flex items-start gap-2">
+                    <HelpCircle size={14} className="text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
                         {method === GeneratorMethod.MIXED ? 'Módulo m define el límite del periodo máximo (Hull-Dobell).' :
                             method === GeneratorMethod.MULTIPLICATIVE ? 'Módulo m con incremento c=0.' :
                                 'Configure los parámetros específicos del algoritmo seleccionado.'}
@@ -177,11 +198,11 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 </div>
 
                 {/* Toggle para inyectar entropía basada en el reloj de sistema */}
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <div className="bg-slate-50 dark:bg-bg-dark p-3 rounded-xl border border-slate-100 dark:border-border-subtle">
                     <label className="flex items-center justify-between cursor-pointer group">
                         <div className="flex flex-col">
-                            <span className="text-xs font-bold text-slate-900">Desplazamiento Temporal</span>
-                            <span className="text-[8px] text-slate-400 uppercase font-black">Usa el Reloj del Sistema</span>
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">Desplazamiento Temporal</span>
+                            <span className="text-[8px] text-slate-400 dark:text-slate-500 uppercase font-black">Usa el Reloj del Sistema</span>
                         </div>
                         <div className="relative">
                             <input
@@ -191,7 +212,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                                 onChange={handleChange}
                                 className="sr-only peer"
                             />
-                            <div className="w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-black transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                            <div className="w-8 h-4 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-brand-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
                         </div>
                     </label>
                 </div>
@@ -200,7 +221,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full group bg-black hover:bg-slate-800 text-white text-xs font-black py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full group bg-black dark:bg-brand-primary hover:bg-slate-800 dark:hover:bg-blue-600 text-white text-xs font-black py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <RefreshCw size={14} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-[360deg] transition-transform duration-700'}`} />
                     <span>{isLoading ? 'GENERANDO...' : 'EJECUTAR ALGORITMO'}</span>

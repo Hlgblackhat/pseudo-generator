@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import GeneratorForm from './components/GeneratorForm';
 import ResultsDisplay from './components/ResultsDisplay';
+import { ModeToggle } from './components/mode-toggle';
 import { createGenerator } from './engines';
 import type { GeneratorParams } from './engines';
 import { motion } from 'framer-motion';
@@ -63,9 +64,13 @@ function App() {
 
     // Validación matemática (ej. Teorema de Hull-Dobell)
     const resultado = motor.validateParams();
-    const esPeriodoCompleto = resultado.isValid && resultado.warnings.length === 0;
+    const esPeriodoCompleto = resultado.isValid && (resultado.warnings?.length === 0 || !resultado.warnings);
 
-    setValidation({ errors: resultado.errors, warnings: resultado.warnings, isFullPeriod: esPeriodoCompleto });
+    setValidation({
+      errors: resultado.errors,
+      warnings: resultado.warnings || [],
+      isFullPeriod: esPeriodoCompleto
+    });
 
     // Detener si hay errores críticos en los parámetros
     if (!resultado.isValid) return;
@@ -114,7 +119,7 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen bg-bg-dark text-slate-900 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#f8fafc] dark:bg-bg-dark text-slate-900 dark:text-slate-100 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden transition-colors">
 
       {/* Ambiente Visual de Fondo */}
       <div className="fixed inset-0 pointer-events-none opacity-5">
@@ -122,24 +127,25 @@ function App() {
       </div>
 
       {/* Cabecera Principal */}
-      <header className="px-6 py-3 border-b border-slate-200 bg-white/80 backdrop-blur-xl flex justify-between items-center z-20 shrink-0 shadow-sm">
+      <header className="px-6 py-3 border-b border-slate-200 dark:border-border-subtle bg-white/80 dark:bg-bg-card/80 backdrop-blur-xl flex justify-between items-center z-20 shrink-0 shadow-sm transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-brand-primary text-white rounded-lg shadow-sm">
+          <div className="p-1.5 bg-black dark:bg-brand-primary text-white rounded-lg shadow-sm">
             <Beaker className="w-4 h-4" />
           </div>
-          <h1 className="text-lg font-black text-slate-900 tracking-widest uppercase">
+          <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-widest uppercase">
             Pseudo<span className="text-brand-primary italic">Gen</span>
           </h1>
-          <span className="bg-slate-100 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 text-slate-500 uppercase ml-2 tracking-widest">v2.5 Lab</span>
+          <span className="bg-slate-100 dark:bg-slate-800 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase ml-2 tracking-widest">v2.5 Lab</span>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${isGenerating ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${isGenerating ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800' : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${isGenerating ? 'bg-amber-500 animate-pulse' : 'bg-green-500'}`} />
-            <span className={`text-[9px] font-black uppercase tracking-widest ${isGenerating ? 'text-amber-600' : 'text-green-600'}`}>
+            <span className={`text-[9px] font-black uppercase tracking-widest ${isGenerating ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
+          <ModeToggle />
         </div>
       </header>
 
@@ -151,8 +157,8 @@ function App() {
           <GeneratorForm onGenerate={startGeneration} isLoading={isGenerating} />
 
           {/* Registro de Entropía Temporal */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
-            <h4 className="text-[9px] font-black text-slate-400 tracking-widest uppercase flex items-center gap-2">
+          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
+            <h4 className="text-[9px] font-black text-slate-400 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
               <History size={12} className="text-brand-primary" /> Log de Entropía
             </h4>
             <div className="space-y-2">
@@ -163,8 +169,8 @@ function App() {
                 </span>
               </div>
               {entropyInfo.active && (
-                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                  <p className="text-[9px] text-slate-600 leading-tight tabular-nums italic">
+                <div className="p-2 bg-slate-50 dark:bg-bg-dark rounded-lg border border-slate-100 dark:border-border-subtle">
+                  <p className="text-[9px] text-slate-600 dark:text-slate-400 leading-tight tabular-nums italic">
                     Desplazamiento: +{entropyInfo.offset}ms
                   </p>
                 </div>
@@ -172,8 +178,8 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-white/50 border border-slate-100 border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center opacity-40">
-            <Activity size={32} className="text-slate-300 mb-2" />
+          <div className="bg-white/50 dark:bg-bg-card/50 border border-slate-100 dark:border-border-subtle border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center opacity-40 transition-colors">
+            <Activity size={32} className="text-slate-300 dark:text-slate-300 mb-2" />
             <p className="text-[8px] uppercase font-black text-slate-400 tracking-[0.2em]">Señal Lista</p>
           </div>
         </aside>
@@ -190,48 +196,48 @@ function App() {
         <aside className="w-72 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
 
           {/* Estado del Ciclo (Determinismo) */}
-          <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-200'}`}>
-            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 mb-3">
+          <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
+            <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3">
               <Cpu size={14} className={repeatState.repeatIndex ? 'text-rose-500 rotate-180' : 'text-slate-400'} />
               Análisis de Ciclo
             </h3>
             {repeatState.repeatIndex ? (
               <div className="space-y-2">
-                <div className="flex items-baseline gap-1.5 text-rose-600">
+                <div className="flex items-baseline gap-1.5 text-rose-600 dark:text-rose-400">
                   <span className="text-3xl font-black tabular-nums">#{repeatState.repeatIndex + 1}</span>
                   <span className="text-[8px] font-black uppercase">Fase</span>
                 </div>
-                <p className="text-[9px] text-rose-500 uppercase leading-none font-bold">Determinismo detectado</p>
+                <p className="text-[9px] text-rose-500 dark:text-rose-400 uppercase leading-none font-bold">Determinismo detectado</p>
               </div>
             ) : (
-              <p className="text-[10px] text-slate-400 italic font-medium">Buscando ciclos en la secuencia...</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-400 italic font-medium">Buscando ciclos en la secuencia...</p>
             )}
           </div>
 
           {/* Validación Matemática y Predicciones */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-4 shadow-sm">
-            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors">
+            <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
               <ShieldCheck size={14} className="text-brand-primary" /> Predicción Hull-Dobell
             </h3>
 
-            <div className={`px-3 py-1.5 rounded-lg text-[9px] font-black text-center border ${validation.isFullPeriod ? 'bg-green-50 border-green-200 text-green-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+            <div className={`px-3 py-1.5 rounded-lg text-[9px] font-black text-center border ${validation.isFullPeriod ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900 text-green-700 dark:text-green-400' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400'}`}>
               {validation.isFullPeriod ? 'ÓPTIMO (Periodo m)' : 'SUB-ÓPTIMO (Periodo < m)'}
             </div>
 
             <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-1">
               {validation.errors.length > 0 ? (
                 validation.errors.map((err, i) => (
-                  <div key={i} className="text-[9px] text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-100 italic">
+                  <div key={i} className="text-[9px] text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-100 dark:border-rose-900 italic">
                     {err}
                   </div>
                 ))
               ) : validation.isFullPeriod ? (
-                <p className="text-[9px] text-green-600 italic leading-snug font-medium">
+                <p className="text-[9px] text-green-600 dark:text-green-400 italic leading-snug font-medium">
                   Condiciones cumplidas. El generador recorrerá exactamente {numbers.length > 0 ? numbers.length : 'm'} estados únicos.
                 </p>
               ) : (
                 validation.warnings.map((warn, i) => (
-                  <div key={i} className="text-[9px] text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100 italic">
+                  <div key={i} className="text-[9px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 p-2 rounded-lg border border-amber-100 dark:border-amber-900 italic">
                     {warn}
                   </div>
                 ))
@@ -240,17 +246,17 @@ function App() {
           </div>
 
           {/* Estadísticas en Tiempo Real */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-4 flex-1 shadow-sm">
+          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors">
             <h4 className="text-[9px] font-black text-brand-primary uppercase tracking-widest">Estadísticas Lab</h4>
             <div className="space-y-3">
               <div className="space-y-1">
-                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400">
+                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400">
                   <span>Media (&mu;)</span>
-                  <span className="text-slate-900 tabular-nums">
+                  <span className="text-slate-900 dark:text-white tabular-nums">
                     {numbers.length > 0 ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(4) : "0.0000"}
                   </span>
                 </div>
-                <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-brand-primary"
                     initial={{ width: 0 }}
@@ -259,18 +265,18 @@ function App() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100">
-                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400">
+              <div className="pt-2 border-t border-slate-100 dark:border-border-subtle">
+                <div className="flex justify-between text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400">
                   <span>Eficiencia</span>
-                  <span className={validation.isFullPeriod ? 'text-green-600' : 'text-amber-600 font-bold'}>
+                  <span className={validation.isFullPeriod ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400 font-bold'}>
                     {validation.isFullPeriod ? '100%' : '55%'}
                   </span>
                 </div>
               </div>
             </div>
             <div className="flex-1" />
-            <div className="pt-4 flex justify-center opacity-20">
-              <BarChart3 size={48} className="text-slate-900" />
+            <div className="pt-4 flex justify-center opacity-20 transition-opacity">
+              <BarChart3 size={48} className="text-slate-900 dark:text-white" />
             </div>
           </div>
 
