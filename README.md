@@ -56,6 +56,7 @@ Para validar los resultados rápidamente en la aplicación, sugerimos los siguie
 | Perfil | Información |
 | :--- | :--- |
 | <img src="https://github.com/Hlgblackhat.png" width="60" style="border-radius: 50%"/> | **Haider López** <br/> [@Hlgblackhat](https://github.com/Hlgblackhat) <br/> Universidad de Cartagena |
+| <img src="https://github.com/Josetorresdev.png" width="60" style="border-radius: 50%"/> | **José Torres** <br/> [@Josetorresdev](https://github.com/Josetorresdev) <br/> Universidad de Cartagena |
 
 ---
 

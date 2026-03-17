@@ -636,15 +636,29 @@ function App() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-border-subtle">
-          <img
-            src="https://github.com/Hlgblackhat.png"
-            alt="Colaborador"
-            className="w-8 h-8 rounded-full border-2 border-brand-primary shadow-sm"
-          />
-          <div className="flex flex-col">
-            <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">Haider López</span>
-            <span className="text-[9px] text-brand-primary font-bold">@Hlgblackhat</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-border-subtle">
+            <img
+              src="https://github.com/Hlgblackhat.png"
+              alt="Colaborador"
+              className="w-8 h-8 rounded-full border-2 border-brand-primary shadow-sm"
+            />
+            <div className="flex flex-col">
+              <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">Haider López</span>
+              <span className="text-[9px] text-brand-primary font-bold">@Hlgblackhat</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-border-subtle">
+            <img
+              src="https://github.com/Josetorresdev.png"
+              alt="Colaborador"
+              className="w-8 h-8 rounded-full border-2 border-slate-400 dark:border-slate-600 shadow-sm"
+            />
+            <div className="flex flex-col">
+              <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">José Torres</span>
+              <span className="text-[9px] text-slate-500 font-bold">@Josetorresdev</span>
+            </div>
           </div>
         </div>
 
