@@ -157,6 +157,37 @@ function App() {
     }
   };
 
+  /**
+   * Genera dinámicamente el texto del badge de estado.
+   */
+  const getValidationBadge = () => {
+    if (!lastParams) return 'PREDICCIÓN INICIAL';
+    if (!validation.isFullPeriod) return 'SUB-ÓPTIMO (Periodo < m)';
+    switch (lastParams.method) {
+      case 'mixed': return 'ÓPTIMO (Periodo m)';
+      case 'multiplicative': return 'ÓPTIMO (Periodo Máx Posible)';
+      case 'additive': return 'VALIDADO (Configuración)';
+      case 'middle_square': return 'VALIDADO (Experimental)';
+      case 'lfsr': return 'ÓPTIMO (Semilla Válida)';
+      default: return 'ÓPTIMO';
+    }
+  };
+
+  /**
+   * Genera dinámicamente el mensaje verde de éxito cuando se cumplen las condiciones de un método.
+   */
+  const getValidationSuccessMessage = () => {
+    if (!lastParams) return 'Configura y ejecuta para obtener predicciones.';
+    switch (lastParams.method) {
+      case 'mixed': return `Condiciones cumplidas. El generador recorrerá exactamente ${numbers.length > 0 ? numbers.length : 'm'} estados únicos.`;
+      case 'multiplicative': return 'Condiciones cumplidas. El periodo es el máximo posible para el módulo configurado.';
+      case 'additive': return 'Parámetros válidos para comenzar la simulación aditiva según los retrasos.';
+      case 'middle_square': return 'Semilla aceptada. El algoritmo empírico está listo para iniciar.';
+      case 'lfsr': return 'Semilla no nula validada. Polinomio de retroalimentación acoplado.';
+      default: return 'Parámetros validados correctamente (Periodo Completo).';
+    }
+  };
+
   return (
     <div className="h-screen bg-[#f8fafc] dark:bg-bg-dark text-slate-900 dark:text-slate-100 font-sans selection:bg-brand-primary selection:text-white flex flex-col overflow-hidden transition-colors">
 
@@ -260,7 +291,7 @@ function App() {
             </h3>
 
             <div className={`px-3 py-1.5 rounded-lg text-[9px] font-black text-center border ${validation.isFullPeriod ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900 text-green-700 dark:text-green-400' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400'}`}>
-              {validation.isFullPeriod ? 'ÓPTIMO (Periodo m)' : 'SUB-ÓPTIMO (Periodo < m)'}
+              {getValidationBadge()}
             </div>
 
             <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-1">
@@ -272,7 +303,7 @@ function App() {
                 ))
               ) : validation.isFullPeriod ? (
                 <p className="text-[9px] text-green-600 dark:text-green-400 italic leading-snug font-medium">
-                  Condiciones cumplidas. El generador recorrerá exactamente {numbers.length > 0 ? numbers.length : 'm'} estados únicos.
+                  {getValidationSuccessMessage()}
                 </p>
               ) : (
                 validation.warnings.map((warn, i) => (
