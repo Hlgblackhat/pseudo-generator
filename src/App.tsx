@@ -20,7 +20,8 @@ import {
   Library,
   Maximize2,
   Minimize2,
-  Github
+  Github,
+  BookOpen
 } from 'lucide-react';
 
 /**
@@ -252,6 +253,15 @@ function App() {
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
+          <a
+            href="https://github.com/Hlgblackhat/pseudo-generator/tree/master/docs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-brand-primary transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            title="Ver Documentación Técnica"
+          >
+            <BookOpen size={18} />
+          </a>
           <a
             href="https://github.com/Hlgblackhat/pseudo-generator"
             target="_blank"
