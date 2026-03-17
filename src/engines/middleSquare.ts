@@ -40,6 +40,14 @@ export class MiddleSquare implements PRNG {
     }
 
     /**
+     * Sugiere una semilla y cantidad de dígitos que no colapsen el generador inmediatamente.
+     * Las semillas "intercaladas" (como 1234 o 6765) tienden a durar más iteraciones.
+     */
+    suggestParams(): Partial<import('./types').GeneratorParams> {
+        return { seed: 1234, d: 4 }; // Semilla clásica de Von Neumann con 4 dígitos
+    }
+
+    /**
      * Valida que d sea suficiente para la operación y advierte si la semilla es inconsistente.
      */
     validateParams(): ValidationResult {

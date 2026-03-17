@@ -38,6 +38,14 @@ export class LFSR implements PRNG {
     }
 
     /**
+     * Sugiere una semilla válida (distinta de cero).
+     * En el LFSR cualquier valor != 0 es válido; sugerimos un valor interesante.
+     */
+    suggestParams(): Partial<import('./types').GeneratorParams> {
+        return { seed: Math.floor(Math.random() * 65534) + 1 }; // Valor aleatorio entre 1 y 65535
+    }
+
+    /**
      * Valida que la semilla no sea cero, lo cual causaría un estado nulo infinito en XOR.
      */
     validateParams(): ValidationResult {

@@ -15,6 +15,7 @@ export interface PRNG {
     name: string; // Nombre legible del algoritmo
     next(): number; // Genera el siguiente número normalizado en el rango [0, 1)
     validateParams(): ValidationResult; // Ejecuta validaciones matemáticas específicas del método
+    suggestParams(): Partial<GeneratorParams>; // Propone parámetros óptimos para el método activo
 }
 
 /**

@@ -38,6 +38,14 @@ export class AdditiveCongruential implements PRNG {
     }
 
     /**
+     * Sugiere un retraso k efectivo para el algoritmo aditivo.
+     * Valores de k como 7 o 55 son conocidos por dar secuencias largas y de calidad.
+     */
+    suggestParams(): Partial<import('./types').GeneratorParams> {
+        return { k: 7 }; // Retraso estándar con buenos resultados estadísticos
+    }
+
+    /**
      * Valida que el módulo sea positivo y el retraso k sea válido para el algoritmo.
      */
     validateParams(): ValidationResult {

@@ -2,6 +2,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import type { FC } from 'react';
 import { RefreshCw, HelpCircle, Layers, Settings2, Sparkles } from 'lucide-react';
 import { GeneratorMethod, type GeneratorMethodType } from '../engines/types';
+import { createGenerator } from '../engines';
 
 interface GeneratorFormProps {
     onGenerate: (params: any) => void;
@@ -57,13 +58,35 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     }, [method]);
 
     /**
-     * Sugiere parámetros óptimos para el algoritmo seleccionado.
+     * Sugiere parámetros óptimos consultando directamente al motor del algoritmo activo.
+     * Cada motor implementa su propia lógica de sugerencia basada en reglas matemáticas.
      */
     const handleSuggest = () => {
-        if (method === GeneratorMethod.MIXED) {
-            setParams(prev => ({ ...prev, a: 17, c: 43, m: 100 }));
-        } else if (method === GeneratorMethod.MULTIPLICATIVE) {
-            setParams(prev => ({ ...prev, a: 13, m: 64 }));
+        const motor = createGenerator(method, { ...params, method, useTimeEntropy: false });
+        const sugerencias = motor.suggestParams();
+        if (Object.keys(sugerencias).length > 0) {
+            setParams(prev => ({ ...prev, ...sugerencias }));
+        }
+    };
+
+    /**
+     * Devuelve el texto de ayuda contextual según el método activo,
+     * explicando los requisitos y restricciones matemáticas del algoritmo.
+     */
+    const getHelpText = (): string => {
+        switch (method) {
+            case GeneratorMethod.MIXED:
+                return 'Hull-Dobell: mCD(c,m)=1, todos los primos de m dividen (a-1) y si 4|m entonces 4|(a-1).';
+            case GeneratorMethod.MULTIPLICATIVE:
+                return 'Para m=2ⁿ: semilla impar y a≡3 o 5 (mod 8). Periodo máximo = m/4.';
+            case GeneratorMethod.ADDITIVE:
+                return 'Retraso k≥2 requerido. La secuencia inicial se genera con un LCG interno.';
+            case GeneratorMethod.MIDDLE_SQUARE:
+                return 'La semilla debe tener exactamente d dígitos. Semillas "intercaladas" evitan el colapso a 0.';
+            case GeneratorMethod.LFSR:
+                return 'La semilla nunca puede ser 0. Usa polinomio primitivo x¹⁶+x¹⁴+x¹³+x¹¹+1 (0xB400).';
+            default:
+                return 'Configure los parámetros del algoritmo seleccionado.';
         }
     };
 
@@ -190,11 +213,14 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 {/* Ayuda contextual sobre el periodo y parámetros */}
                 <div className="p-3 bg-slate-50 dark:bg-bg-dark rounded-xl border border-slate-100 dark:border-border-subtle flex items-start gap-2">
                     <HelpCircle size={14} className="text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-                    <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
-                        {method === GeneratorMethod.MIXED ? 'Módulo m define el límite del periodo máximo (Hull-Dobell).' :
-                            method === GeneratorMethod.MULTIPLICATIVE ? 'Módulo m con incremento c=0.' :
-                                'Configure los parámetros específicos del algoritmo seleccionado.'}
-                    </p>
+                    <div className="flex flex-col gap-1">
+                        <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
+                            {getHelpText()}
+                        </p>
+                        <p className="text-[8px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight">
+                            Usa ✨ para sugerir valores óptimos automáticamente.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Toggle para inyectar entropía basada en el reloj de sistema */}

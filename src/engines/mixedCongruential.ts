@@ -53,6 +53,33 @@ export class MixedCongruential implements PRNG {
     }
 
     /**
+     * Sugiere parámetros (a, c) que cumplen con el Teorema de Hull-Dobell
+     * para el módulo m actual, garantizando un periodo completo.
+     */
+    suggestParams(): Partial<import('./types').GeneratorParams> {
+        const factors = getPrimeFactors(this.m);
+        // El producto de todos los factores primos únicos
+        let product = factors.reduce((a, b) => a * b, 1);
+
+        // Si m es divisible por 4, el producto debe ser divisible por 4
+        if (this.m % 4 === 0 && product % 4 !== 0) {
+            product *= (product % 2 === 0 ? 2 : 4);
+        }
+
+        // Sugerimos un 'a' que sea 1 + k*product (donde k es entero aleatorio)
+        const k = Math.floor(Math.random() * 5) + 1; // k entre 1 y 5
+        const aSugerido = 1 + (k * product);
+
+        // Buscamos un c aleatorio que sea primo relativo con m (gcd(c, m) === 1)
+        let cSugerido = Math.floor(Math.random() * (this.m - 1)) + 1;
+        while (gcd(cSugerido, this.m) !== 1) {
+            cSugerido = (cSugerido + 1) % this.m || 1;
+        }
+
+        return { a: aSugerido, c: cSugerido };
+    }
+
+    /**
      * Calcula y retorna el siguiente número de la secuencia.
      * Retorna un valor normalizado en el rango [0, 1).
      */
