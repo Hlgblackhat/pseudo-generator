@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import GeneratorForm from './components/GeneratorForm';
 import ResultsDisplay from './components/ResultsDisplay';
+import StatisticalCharts from './components/StatisticalCharts';
 import { ModeToggle } from './components/mode-toggle';
 import { createGenerator } from './engines';
 import type { GeneratorParams } from './engines';
@@ -570,15 +571,19 @@ function App() {
                   </div>
 
                   {/* Columna Derecha: Proyección Gráfica */}
-                  <div className="flex-1 bg-slate-50/50 dark:bg-bg-card rounded-[2rem] border border-slate-100 dark:border-border-subtle p-6 flex items-center justify-center relative overflow-hidden">
-                    <div className="text-center text-slate-400 dark:text-slate-500 opacity-60 flex flex-col items-center gap-4">
-                      <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center animate-pulse">
-                        <Activity size={40} />
+                  <div className="flex-1 bg-slate-50/50 dark:bg-bg-card rounded-[2rem] border border-slate-100 dark:border-border-subtle p-6 flex flex-col relative overflow-hidden">
+                    {numbers.length > 0 ? (
+                      <StatisticalCharts numbers={numbers} />
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center text-center text-slate-400 dark:text-slate-500 opacity-60 flex-col gap-4">
+                        <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                          <Activity size={40} />
+                        </div>
+                        <p className="text-sm font-black uppercase tracking-widest max-w-[200px]">
+                          Esperando datos...
+                        </p>
                       </div>
-                      <p className="text-sm font-black uppercase tracking-widest max-w-[200px]">
-                        Lienzo preparado para Integración de Gráficos (Recharts)
-                      </p>
-                    </div>
+                    )}
                   </div>
 
                 </div>
