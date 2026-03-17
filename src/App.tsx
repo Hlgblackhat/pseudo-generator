@@ -8,6 +8,7 @@ import type { GeneratorParams } from './engines';
 import { availableTests, runSelectedTests } from './tests';
 import type { TestResult } from './tests';
 import { motion, AnimatePresence } from 'framer-motion';
+import pkg from '../package.json';
 import {
   Beaker,
   BarChart3,
@@ -56,7 +57,7 @@ function App() {
   // Estado para la gestión de las Pruebas Estadísticas
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
-  
+
   // Estado para expandir el panel de analítica
   const [isLabExpanded, setIsLabExpanded] = useState(false);
 
@@ -66,7 +67,7 @@ function App() {
     if (!isGenerating && numbers.length > 0 && selectedTests.length > 0) {
       try {
         setTestResults(runSelectedTests(selectedTests, numbers));
-      } catch(e) {
+      } catch (e) {
         console.error("Test Error", e);
       }
     } else if (selectedTests.length === 0) {
@@ -162,10 +163,10 @@ function App() {
     const motor = createGenerator(lastParams.method, lastParams);
     const sugerencias = motor.suggestParams();
     const nuevosParams = { ...lastParams, ...sugerencias };
-    
+
     // Disparamos un evento para que GeneradorForm actualice sus inputs visuales
     window.dispatchEvent(new CustomEvent('applyAutoCorrect', { detail: nuevosParams }));
-    
+
     // Ejecutamos el algoritmo con los nuevos parámetros saneados
     startGeneration(nuevosParams);
   }, [lastParams, startGeneration]);
@@ -233,7 +234,9 @@ function App() {
           <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-widest uppercase">
             Pseudo<span className="text-brand-primary italic">Gen</span>
           </h1>
-          <span className="bg-slate-100 dark:bg-slate-800 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase ml-2 tracking-widest text-[9px]">v1.0.0 official</span>
+          <span className="bg-slate-100 dark:bg-slate-800 text-[8px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase ml-2 tracking-widest text-[9px]">
+            v{pkg.version} official
+          </span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -243,9 +246,9 @@ function App() {
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
-          <a 
-            href="https://github.com/Hlgblackhat/pseudo-generator" 
-            target="_blank" 
+          <a
+            href="https://github.com/Hlgblackhat/pseudo-generator"
+            target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-brand-primary transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95"
             title="Ver Código en GitHub"
@@ -298,8 +301,8 @@ function App() {
                 const isSelected = selectedTests.includes(testId);
                 return (
                   <label key={testId} className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer border hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSelected ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-900/20' : 'border-transparent'}`}>
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="mt-0.5 w-3 h-3 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 dark:bg-bg-dark"
                       checked={isSelected}
                       onChange={(e) => {
@@ -394,7 +397,7 @@ function App() {
               <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium italic leading-relaxed">
                 Los parámetros escogidos no te generan un ciclo completo. Prueba con valores analizados matemáticamente.
               </p>
-              <button 
+              <button
                 onClick={handleAutoCorrect}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2"
               >
@@ -410,7 +413,7 @@ function App() {
               <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
                 <BarChart3 size={14} /> Estadísticas Lab
               </h4>
-              <button 
+              <button
                 onClick={() => setIsLabExpanded(true)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 title="Expandir centro de diagnóstico"
@@ -418,7 +421,7 @@ function App() {
                 <Maximize2 size={14} />
               </button>
             </div>
-            
+
             {/* Estadísticas Básicas */}
             <div className="space-y-3 shrink-0">
               <div className="space-y-1">
@@ -475,7 +478,7 @@ function App() {
                 </div>
               </div>
             )}
-            
+
             {testResults.length === 0 && (
               <>
                 <div className="flex-1" />
@@ -499,7 +502,7 @@ function App() {
               className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm"
             >
               <div className="bg-white dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl p-6 shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
-                
+
                 {/* Header Modal */}
                 <div className="flex items-center justify-between mb-6 shrink-0">
                   <div className="flex items-center gap-4">
@@ -515,7 +518,7 @@ function App() {
                       </p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsLabExpanded(false)}
                     className="p-3 rounded-lg text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                     title="Cerrar diagnóstico"
@@ -523,10 +526,10 @@ function App() {
                     <Minimize2 size={24} />
                   </button>
                 </div>
-                
+
                 {/* Layout Principal del Centro (2 Columnas) */}
                 <div className="flex-1 flex gap-6 min-h-0">
-                  
+
                   {/* Columna Izquierda: KPIs y Lista de Pruebas */}
                   <div className="w-[30%] flex flex-col gap-4">
                     {/* Tarjetas KPI Rápido */}
@@ -628,19 +631,19 @@ function App() {
         </div>
 
         <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-border-subtle">
-          <img 
-            src="https://github.com/Hlgblackhat.png" 
-            alt="Colaborador" 
+          <img
+            src="https://github.com/Hlgblackhat.png"
+            alt="Colaborador"
             className="w-8 h-8 rounded-full border-2 border-brand-primary shadow-sm"
           />
           <div className="flex flex-col">
-            <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">Haider</span>
+            <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none">Haider López</span>
             <span className="text-[9px] text-brand-primary font-bold">@Hlgblackhat</span>
           </div>
         </div>
 
         <div className="text-right">
-          <p className="text-[10px] text-slate-400 font-medium">© 2024 PseudoGen Project. All rights reserved.</p>
+          <p className="text-[10px] text-slate-400 font-medium">© 2026 PseudoGen Project. All rights reserved.</p>
         </div>
       </footer>
     </div>
