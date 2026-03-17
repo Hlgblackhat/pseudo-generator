@@ -19,10 +19,12 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
         a: 21,
         c: 3,
         m: 100,
-        k: 2, // Retraso para el método Aditivo
+        k: 10, // Retraso mayor (LFG)
+        j: 7, // Retraso menor (LFG)
         d: 4, // Cantidad de dígitos para Cuadrados Medios
         p: 499, // Primo p para BBS
         q: 503, // Primo q para BBS
+        count: 100, // Cantidad de números a generar deseada
         useTimeEntropy: false
     });
 
@@ -105,6 +107,8 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 return 'La semilla nunca puede ser 0. Usa polinomio primitivo x¹⁶+x¹⁴+x¹³+x¹¹+1 (0xB400).';
             case GeneratorMethod.BBS:
                 return 'Requiere dos primos p y q tales que p,q ≡ 3 (mod 4). mCD(semilla, p*q)=1.';
+            case GeneratorMethod.LFG:
+                return 'Requiere j < k. El sistema pre-llena el buffer con un LCG para mayor estabilidad.';
             default:
                 return 'Configure los parámetros del algoritmo seleccionado.';
         }
@@ -129,6 +133,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         <option value={GeneratorMethod.MIDDLE_SQUARE}>Cuadrados Medios</option>
                         <option value={GeneratorMethod.LFSR}>LFSR (Bits)</option>
                         <option value={GeneratorMethod.BBS}>Blum Blum Shub (BBS)</option>
+                        <option value={GeneratorMethod.LFG}>Lagged Fibonacci (LFG)</option>
                     </select>
                     <Layers size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -139,7 +144,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                     <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                         <Settings2 size={18} /> Configuración
                     </h2>
-                    {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE || method === GeneratorMethod.BBS) && (
+                    {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE || method === GeneratorMethod.BBS || method === GeneratorMethod.LFG) && (
                         <button
                             type="button"
                             onClick={handleSuggest}
@@ -217,6 +222,31 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         </div>
                     )}
 
+                    {method === GeneratorMethod.LFG && (
+                        <>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso j</label>
+                                <input
+                                    type="number"
+                                    name="j"
+                                    value={params.j}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Retraso k</label>
+                                <input
+                                    type="number"
+                                    name="k"
+                                    value={params.k}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
+                                />
+                            </div>
+                        </>
+                    )}
+
                     {method === GeneratorMethod.BBS && (
                         <>
                             <div className="space-y-1">
@@ -254,6 +284,19 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                             />
                         </div>
                     )}
+                    
+                    <div className="space-y-1 col-span-2">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Cantidad a Generar ($n$)</label>
+                        <input
+                            type="number"
+                            name="count"
+                            value={params.count}
+                            onChange={handleChange}
+                            min="1"
+                            max="20000"
+                            className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm font-bold text-brand-primary dark:text-brand-primary focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums"
+                        />
+                    </div>
                 </div>
 
                 {/* Ayuda contextual sobre el periodo y parámetros */}
@@ -263,7 +306,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
                             {getHelpText()}
                         </p>
-                        {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE) && (
+                        {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE || method === GeneratorMethod.BBS || method === GeneratorMethod.LFG) && (
                             <p className="text-[8px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight">
                                 Usa ✨ para sugerir valores óptimos automáticamente.
                             </p>

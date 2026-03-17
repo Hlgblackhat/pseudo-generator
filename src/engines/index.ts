@@ -4,6 +4,7 @@ import { AdditiveCongruential } from './additiveCongruential';
 import { MiddleSquare } from './middleSquare';
 import { LFSRGenerator } from './lfsr';
 import { BBSGenerator } from './bbs';
+import { LFGGenerator } from './lfg';
 import { GeneratorMethod } from './types';
 import type { PRNG, GeneratorMethodType } from './types';
 
@@ -41,6 +42,9 @@ export const createGenerator = (metodo: GeneratorMethodType, parametros: any): P
 
         case GeneratorMethod.BBS:
             return new BBSGenerator(parametros);
+
+        case GeneratorMethod.LFG:
+            return new LFGGenerator(parametros);
 
         default:
             throw new Error(`Algoritmo ${metodo} no reconocido por el sistema.`);

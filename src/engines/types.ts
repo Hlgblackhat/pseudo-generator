@@ -27,7 +27,8 @@ export const GeneratorMethod = {
     MIDDLE_SQUARE: 'middle_square', // Cuadrados Medios (von Neumann)
     MULTIPLICATIVE: 'multiplicative', // Congruencial Multiplicativo
     LFSR: 'lfsr', // Registro de Desplazamiento con Retroalimentación Lineal
-    BBS: 'bbs' // Blum Blum Shub (Criptográficamente Seguro)
+    BBS: 'bbs', // Blum Blum Shub (Criptográficamente Seguro)
+    LFG: 'lfg' // Lagged Fibonacci Generator
 } as const;
 
 export type GeneratorMethodType = typeof GeneratorMethod[keyof typeof GeneratorMethod];
@@ -40,11 +41,13 @@ export interface GeneratorParams {
     a?: number; // Multiplicador
     c?: number; // Incremento
     m: number; // Módulo
-    k?: number; // Valor de retraso (Para el método Aditivo)
+    k?: number; // Retraso principal (Aditivo y LFG k)
+    j?: number; // Retraso secundario (LFG j)
     d?: number; // Cantidad de dígitos (Para Cuadrados Medios)
     taps?: number[]; // Puntos de retroalimentación (Para LFSR)
     p?: number; // Primer número primo (BBS)
     q?: number; // Segundo número primo (BBS)
+    count?: number; // Cantidad de números a generar deseada
     useTimeEntropy: boolean; // Indica si se debe inyectar entropía basada en el reloj
     method: GeneratorMethodType; // Algoritmo seleccionado
 }

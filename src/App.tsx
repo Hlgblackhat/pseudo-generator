@@ -183,6 +183,7 @@ function App() {
       case 'middle_square': return 'Análisis de Von Neumann';
       case 'lfsr': return 'Análisis Polinomial LFSR';
       case 'bbs': return 'Análisis de Primos BBS';
+      case 'lfg': return 'Análisis de Retraso LFG';
       default: return 'Predicción de Periodo';
     }
   };
@@ -200,6 +201,7 @@ function App() {
       case 'middle_square': return 'VALIDADO (Experimental)';
       case 'lfsr': return 'ÓPTIMO (Semilla Válida)';
       case 'bbs': return 'ENCRIPTACIÓN SEGURA';
+      case 'lfg': return 'PERIODO LARGO (LFG)';
       default: return 'ÓPTIMO';
     }
   };
@@ -216,6 +218,7 @@ function App() {
       case 'middle_square': return 'Semilla aceptada. El algoritmo empírico está listo para iniciar.';
       case 'lfsr': return 'Semilla no nula validada. Polinomio de retroalimentación acoplado.';
       case 'bbs': return 'Primos p y q validados. El producto M generará un ciclo de alta seguridad.';
+      case 'lfg': return 'Buffer inicializado. La secuencia de rezago histórico está activa.';
       default: return 'Parámetros validados correctamente (Periodo Completo).';
     }
   };
