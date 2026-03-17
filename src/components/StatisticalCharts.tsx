@@ -44,7 +44,7 @@ export default function StatisticalCharts({ numbers }: StatisticalChartsProps) {
   return (
     <div className="flex flex-col gap-6 w-full h-full">
       {/* Gráfico 1: Histograma de Frecuencias (Prueba Uniformidad aprox) */}
-      <div className="flex-1 min-h-[200px] bg-white dark:bg-bg-dark rounded-[1.5rem] p-5 border border-slate-100 dark:border-border-subtle shadow-sm flex flex-col relative overflow-hidden group">
+      <div className="flex-1 min-h-[200px] bg-white dark:bg-bg-dark rounded-xl p-5 border border-slate-100 dark:border-border-subtle shadow-sm flex flex-col relative overflow-hidden group">
         <h4 className="text-[11px] font-black uppercase text-slate-500 mb-4 shrink-0 px-2 tracking-widest flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
           Distribución (Histograma - 10 Intervalos)
@@ -67,7 +67,7 @@ export default function StatisticalCharts({ numbers }: StatisticalChartsProps) {
       </div>
 
       {/* Gráfico 2: Diagrama de Dispersión (Prueba de Series aprox) */}
-      <div className="flex-1 min-h-[200px] bg-white dark:bg-bg-dark rounded-[1.5rem] p-5 border border-slate-100 dark:border-border-subtle shadow-sm flex flex-col relative overflow-hidden group">
+      <div className="flex-1 min-h-[200px] bg-white dark:bg-bg-dark rounded-xl p-5 border border-slate-100 dark:border-border-subtle shadow-sm flex flex-col relative overflow-hidden group">
         <h4 className="text-[11px] font-black uppercase text-slate-500 mb-4 shrink-0 px-2 tracking-widest flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-teal-500"></span>
           Dispersión 2D (Pares Secuenciales)

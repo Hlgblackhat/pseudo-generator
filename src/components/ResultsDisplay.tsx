@@ -18,7 +18,7 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
     const indiceInicio = Math.max(0, numbers.length - limiteVista);
 
     return (
-        <div className="bg-white dark:bg-bg-card rounded-3xl border border-slate-200 dark:border-border-subtle h-full flex flex-col shadow-sm relative overflow-hidden group transition-colors">
+        <div className="bg-white dark:bg-bg-card rounded-xl border border-slate-200 dark:border-border-subtle h-full flex flex-col shadow-sm relative overflow-hidden group transition-colors">
 
             {/* Cabecera de la columna de resultados */}
             <div className="p-6 border-b border-slate-100 dark:border-border-subtle flex justify-between items-center bg-slate-50/50 dark:bg-bg-dark/50">
@@ -79,7 +79,7 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
 
                 {/* Aviso cuando se supera el límite de renderizado visual */}
                 {numbers.length > limiteVista && (
-                    <div className="mt-8 p-4 border border-dashed border-slate-200 dark:border-border-subtle rounded-2xl text-center transition-colors">
+                    <div className="mt-8 p-4 border border-dashed border-slate-200 dark:border-border-subtle rounded-lg text-center transition-colors">
                         <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
                             Mostrando los últimos {limiteVista} resultados
                         </p>

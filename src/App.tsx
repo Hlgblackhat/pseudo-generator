@@ -254,7 +254,7 @@ function App() {
           <GeneratorForm onGenerate={startGeneration} isLoading={isGenerating} />
 
           {/* Registro de Entropía Temporal */}
-          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
+          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-lg p-4 space-y-3 shadow-sm transition-colors">
             <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
               <History size={14} className="text-brand-primary" /> Log de Entropía
             </h4>
@@ -276,7 +276,7 @@ function App() {
           </div>
 
           {/* Panel de Selección de Pruebas Estadísticas */}
-          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-4 space-y-3 shadow-sm transition-colors">
+          <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-lg p-4 space-y-3 shadow-sm transition-colors">
             <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
               <Library size={14} className="text-indigo-500" /> Pruebas Estadísticas
             </h4>
@@ -311,7 +311,7 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-white/50 dark:bg-bg-card/50 border border-slate-100 dark:border-border-subtle border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center opacity-40 transition-colors">
+          <div className="bg-white/50 dark:bg-bg-card/50 border border-slate-100 dark:border-border-subtle border-dashed rounded-lg p-4 flex-1 flex flex-col items-center justify-center opacity-40 transition-colors">
             <Activity size={32} className="text-slate-300 dark:text-slate-300 mb-2" />
             <p className="text-[8px] uppercase font-black text-slate-400 tracking-[0.2em]">Señal Lista</p>
           </div>
@@ -329,7 +329,7 @@ function App() {
         <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
 
           {/* Estado del Ciclo (Determinismo) */}
-          <div className={`p-5 rounded-3xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
+          <div className={`p-5 rounded-xl border transition-all duration-500 shadow-sm ${repeatState.repeatIndex ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400' : 'bg-white dark:bg-bg-card border-slate-200 dark:border-border-subtle'}`}>
             <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3">
               <Cpu size={14} className={repeatState.repeatIndex ? 'text-rose-500 rotate-180' : 'text-slate-400'} />
               Análisis de Ciclo
@@ -348,7 +348,7 @@ function App() {
           </div>
 
           {/* Validación Matemática y Predicciones */}
-          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors">
+          <div className="bg-white dark:bg-bg-card p-5 rounded-xl border border-slate-200 dark:border-border-subtle space-y-4 shadow-sm transition-colors">
             <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
               <ShieldCheck size={14} className="text-brand-primary" /> {getValidationTitle()}
             </h3>
@@ -380,7 +380,7 @@ function App() {
 
           {/* Panel Inteligente de Auto-Corrección (Sugerencia Lab) */}
           {!validation.isFullPeriod && lastParams && validation.warnings.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 p-5 rounded-3xl border border-amber-200 dark:border-amber-900 space-y-3 shadow-sm transition-colors animation-fade-in shrink-0">
+            <div className="bg-amber-50 dark:bg-amber-950/20 p-5 rounded-xl border border-amber-200 dark:border-amber-900 space-y-3 shadow-sm transition-colors animation-fade-in shrink-0">
               <h3 className="text-[10px] font-black text-amber-900 dark:text-amber-500 uppercase tracking-widest flex items-center gap-2">
                 <Sparkles size={14} /> Sugerencia Lab
               </h3>
@@ -398,7 +398,7 @@ function App() {
           )}
 
           {/* Estadísticas Lab y Resultados de Pruebas (Tarjeta lateral pequeña) */}
-          <div className="bg-white dark:bg-bg-card p-5 rounded-3xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
+          <div className="bg-white dark:bg-bg-card p-5 rounded-xl border border-slate-200 dark:border-border-subtle space-y-4 flex-1 shadow-sm transition-colors flex flex-col shrink-0 min-h-0">
             <div className="flex items-center justify-between shrink-0">
               <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
                 <BarChart3 size={14} /> Estadísticas Lab
@@ -491,12 +491,12 @@ function App() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm"
             >
-              <div className="bg-white dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-[2rem] p-6 shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
+              <div className="bg-white dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl p-6 shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
                 
                 {/* Header Modal */}
                 <div className="flex items-center justify-between mb-6 shrink-0">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center">
                       <Library size={24} />
                     </div>
                     <div>
@@ -510,7 +510,7 @@ function App() {
                   </div>
                   <button 
                     onClick={() => setIsLabExpanded(false)}
-                    className="p-3 rounded-2xl text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                    className="p-3 rounded-lg text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                     title="Cerrar diagnóstico"
                   >
                     <Minimize2 size={24} />
@@ -524,13 +524,13 @@ function App() {
                   <div className="w-[30%] flex flex-col gap-4">
                     {/* Tarjetas KPI Rápido */}
                     <div className="grid grid-cols-2 gap-4 shrink-0">
-                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-border-subtle">
+                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-border-subtle">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Media Global Muestral</span>
                         <span className="text-xl font-black text-slate-900 dark:text-white tabular-nums">
                           {numbers.length > 0 ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(4) : "0.0000"}
                         </span>
                       </div>
-                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-border-subtle">
+                      <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-border-subtle">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Eficiencia Ciclo</span>
                         <span className={`text-xl font-black ${validation.isFullPeriod ? 'text-green-600 dark:text-green-500' : 'text-amber-500'}`}>
                           {validation.isFullPeriod ? '100%' : '55%'}
@@ -544,12 +544,12 @@ function App() {
                         Desglose de Pruebas
                       </h3>
                       {testResults.length === 0 ? (
-                        <div className="text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl opacity-50">
+                        <div className="text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl opacity-50">
                           <p className="text-xs uppercase font-bold text-slate-400">Sin pruebas seleccionadas</p>
                         </div>
                       ) : (
                         testResults.map((result, i) => (
-                          <div key={i} className={`p-4 rounded-2xl border flex flex-col gap-2 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
+                          <div key={i} className={`p-4 rounded-lg border flex flex-col gap-2 ${result.passed ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900'}`}>
                             <div className="flex justify-between items-start">
                               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={result.name}>
                                 {result.name}
@@ -571,7 +571,7 @@ function App() {
                   </div>
 
                   {/* Columna Derecha: Proyección Gráfica */}
-                  <div className="flex-1 bg-slate-50/50 dark:bg-bg-card rounded-[2rem] border border-slate-100 dark:border-border-subtle p-6 flex flex-col relative overflow-hidden">
+                  <div className="flex-1 bg-slate-50/50 dark:bg-bg-card rounded-xl border border-slate-100 dark:border-border-subtle p-6 flex flex-col relative overflow-hidden">
                     {numbers.length > 0 ? (
                       <StatisticalCharts numbers={numbers} />
                     ) : (

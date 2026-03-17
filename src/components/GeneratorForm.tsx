@@ -109,7 +109,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     return (
         <div className="flex flex-col gap-4">
             {/* Selector de Algoritmo */}
-            <div className="bg-white dark:bg-bg-card p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-border-subtle transition-colors">
+            <div className="bg-white dark:bg-bg-card p-4 rounded-lg shadow-sm border border-slate-200 dark:border-border-subtle transition-colors">
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2 block">
                     Algoritmo de Generación
                 </label>
@@ -129,7 +129,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-bg-card p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-border-subtle gap-4 flex flex-col relative overflow-hidden shrink-0 transition-colors">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-bg-card p-5 rounded-lg shadow-sm border border-slate-200 dark:border-border-subtle gap-4 flex flex-col relative overflow-hidden shrink-0 transition-colors">
                 <div className="flex justify-between items-center mb-1">
                     <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                         <Settings2 size={18} /> Configuración
