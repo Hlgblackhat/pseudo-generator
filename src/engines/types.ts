@@ -51,3 +51,4 @@ export interface GeneratorParams {
     useTimeEntropy: boolean; // Indica si se debe inyectar entropía basada en el reloj
     method: GeneratorMethodType; // Algoritmo seleccionado
 }
+
