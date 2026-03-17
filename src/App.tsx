@@ -311,10 +311,7 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-white/50 dark:bg-bg-card/50 border border-slate-100 dark:border-border-subtle border-dashed rounded-lg p-4 flex-1 flex flex-col items-center justify-center opacity-40 transition-colors">
-            <Activity size={32} className="text-slate-300 dark:text-slate-300 mb-2" />
-            <p className="text-[8px] uppercase font-black text-slate-400 tracking-[0.2em]">Señal Lista</p>
-          </div>
+
         </aside>
 
         <section className="flex-1 flex flex-col overflow-hidden">

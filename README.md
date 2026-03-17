@@ -1,4 +1,4 @@
-# PseudoGen v2.5: Simulador de Números Pseudoaleatorios
+# PseudoGen v1.0.0: Laboratorio Analítico de PRNG
 
 Bienvenido a **PseudoGen**, un laboratorio interactivo de alto rendimiento para la generación, visualización y validación de números pseudoaleatorios utilizando 5 métodos clásicos.
 
@@ -13,7 +13,8 @@ Bienvenido a **PseudoGen**, un laboratorio interactivo de alto rendimiento para 
 
 ### 2. Guías de Implementación y Diseño
 - **[Manual de Usuario e Interfaz (UI/UX)](docs/UI_UX_LAB.md):** Explicación del workspace de 3 columnas y el código de colores.
-- **[Metodología de Pruebas](docs/tests/methodology.md):** Cómo validamos la uniformidad y el periodo de las secuencias.
+- **[Diagnóstico Estadístico](docs/tests/statistical-tests.md):** Detalle matemático de las 6 pruebas empíricas (Chi-Square, Poker, Medias, etc.).
+- **[Metodología de Validación](docs/tests/methodology.md):** Cómo validamos la uniformidad y el periodo de las secuencias.
 
 ### 3. Aspectos Académicos
 - **[Cumplimiento Académico](docs/COMPLIANCE.md):** Documento que certifica la NO utilización de `Math.random()`.
@@ -38,6 +39,7 @@ Para validar los resultados rápidamente en la aplicación, sugerimos los siguie
 - **Styling:** Tailwind CSS 4
 - **Animations:** Framer Motion
 - **Icons:** Lucide React
-- **Build Tool:** Vite
+- **Graphics:** Recharts (Visualización de Frecuencias y Dispersión 2D)
+- **Build Tool:** Vite 8.0
 
 **Nota para el Evaluador:** Todos los motores matemáticos se encuentran localizados en `src/engines/`. No se utilizan librerías externas para la lógica de generación.
