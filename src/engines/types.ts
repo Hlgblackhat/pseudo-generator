@@ -26,7 +26,8 @@ export const GeneratorMethod = {
     ADDITIVE: 'additive', // Congruencial Aditivo
     MIDDLE_SQUARE: 'middle_square', // Cuadrados Medios (von Neumann)
     MULTIPLICATIVE: 'multiplicative', // Congruencial Multiplicativo
-    LFSR: 'lfsr' // Registro de Desplazamiento con Retroalimentación Lineal
+    LFSR: 'lfsr', // Registro de Desplazamiento con Retroalimentación Lineal
+    BBS: 'bbs' // Blum Blum Shub (Criptográficamente Seguro)
 } as const;
 
 export type GeneratorMethodType = typeof GeneratorMethod[keyof typeof GeneratorMethod];
@@ -42,6 +43,8 @@ export interface GeneratorParams {
     k?: number; // Valor de retraso (Para el método Aditivo)
     d?: number; // Cantidad de dígitos (Para Cuadrados Medios)
     taps?: number[]; // Puntos de retroalimentación (Para LFSR)
+    p?: number; // Primer número primo (BBS)
+    q?: number; // Segundo número primo (BBS)
     useTimeEntropy: boolean; // Indica si se debe inyectar entropía basada en el reloj
     method: GeneratorMethodType; // Algoritmo seleccionado
 }

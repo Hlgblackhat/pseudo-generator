@@ -2,11 +2,13 @@ import { MixedCongruential } from './mixedCongruential';
 import { MultiplicativeCongruential } from './multiplicativeCongruential';
 import { AdditiveCongruential } from './additiveCongruential';
 import { MiddleSquare } from './middleSquare';
-import { LFSR } from './lfsr';
+import { LFSRGenerator } from './lfsr';
+import { BBSGenerator } from './bbs';
 import { GeneratorMethod } from './types';
 import type { PRNG, GeneratorMethodType } from './types';
 
 export * from './types';
+export { BBSGenerator } from './bbs';
 
 /**
  * Factoría de Generadores de Números Pseudoaleatorios.
@@ -35,7 +37,10 @@ export const createGenerator = (metodo: GeneratorMethodType, parametros: any): P
 
         case GeneratorMethod.LFSR:
             // Registro de desplazamiento basado en operaciones de bits (16-bit)
-            return new LFSR(parametros.seed, 16);
+            return new LFSRGenerator(parametros);
+
+        case GeneratorMethod.BBS:
+            return new BBSGenerator(parametros);
 
         default:
             throw new Error(`Algoritmo ${metodo} no reconocido por el sistema.`);

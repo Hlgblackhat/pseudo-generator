@@ -5,15 +5,15 @@ import type { PRNG, ValidationResult } from './types';
  * Algoritmo basado en bits que utiliza desplazamientos y operaciones XOR.
  * Común en implementación de hardware para generación de ruido blanco.
  */
-export class LFSR implements PRNG {
+export class LFSRGenerator implements PRNG {
     name = "LFSR (Shift Register)";
     private estado: number; // Estado interno del registro (bits)
     private mascara: number; // Taps del polinomio (puntos de retroalimentación)
     private longitudBits: number; // Resolución del registro (ej. 16 bits)
 
-    constructor(semilla: number, longitudBits: number = 16) {
-        this.estado = semilla || 1; // Un LFSR nunca puede empezar en 0
-        this.longitudBits = longitudBits;
+    constructor(params: import('./types').GeneratorParams) {
+        this.estado = params.seed || 1; // Un LFSR nunca puede empezar en 0
+        this.longitudBits = 16;
 
         // Máscara por defecto para registros de 16 bits (Polinomio: x^16 + x^14 + x^13 + x^11 + 1)
         // Representación hexadecimal: 0xB400
