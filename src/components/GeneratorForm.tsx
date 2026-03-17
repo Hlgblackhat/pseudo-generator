@@ -233,9 +233,11 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
                             {getHelpText()}
                         </p>
-                        <p className="text-[8px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight">
-                            Usa ✨ para sugerir valores óptimos automáticamente.
-                        </p>
+                        {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE) && (
+                            <p className="text-[8px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight">
+                                Usa ✨ para sugerir valores óptimos automáticamente.
+                            </p>
+                        )}
                     </div>
                 </div>
 
