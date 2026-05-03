@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import GeneratorForm from './GeneratorForm';
 import ResultsDisplay from './ResultsDisplay';
@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ExcelUploader from './ExcelUploader';
 import { setSharedNumbers } from '../store/dataStore';
 import { exportGeneratorToExcel } from '../utils/excelExport';
+import { getCriteriaForMethod } from '../engines/qualityCriteria';
+import { GeneratorMethod } from '../engines/types';
 import pkg from '../../package.json';
 import {
   BarChart3,
@@ -47,6 +49,12 @@ function Laboratory() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isLabExpanded, setIsLabExpanded] = useState(false);
 
+  // Criterios de calidad del motor activo — se recalculan cuando cambia el método
+  const activeCriteria = useMemo(
+    () => getCriteriaForMethod(lastParams?.method ?? GeneratorMethod.MIXED),
+    [lastParams?.method]
+  );
+
   useEffect(() => {
     if (!isGenerating && numbers.length > 0 && selectedTests.length > 0) {
       try {
@@ -70,6 +78,9 @@ function Laboratory() {
     setLastParams(params);
     const motor = createGenerator(params.method, { ...params, seed: semillaFinal });
     setMethodName(motor.name);
+    // Auto-seleccionar las pruebas recomendadas para el motor activo
+    const criteria = getCriteriaForMethod(params.method);
+    setSelectedTests(criteria.recommendedTests);
     const resultado = motor.validateParams();
     const esPeriodoCompleto = resultado.isValid && (resultado.warnings?.length === 0 || !resultado.warnings);
     setValidation({
@@ -236,22 +247,50 @@ function Laboratory() {
             <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
               <Library size={14} className="text-indigo-500" /> Pruebas Estadísticas
             </h4>
+
+            {/* Criterio de calidad del motor activo */}
+            <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-lg">
+              <p className="text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
+                Criterio principal: {activeCriteria.primaryCriterion}
+              </p>
+              <p className="text-[8px] text-slate-500 dark:text-slate-400 leading-snug">
+                {activeCriteria.qualityNote}
+              </p>
+            </div>
+
             <div className="space-y-2">
               {Object.keys(availableTests).map((testId) => {
                 const isSelected = selectedTests.includes(testId);
+                const isRecommended = activeCriteria.recommendedTests.includes(testId);
+                const isIrrelevant = activeCriteria.irrelevantTests.includes(testId);
                 return (
-                  <label key={testId} className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer border hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSelected ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-900/20' : 'border-transparent'}`}>
+                  <label key={testId} className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer border transition-colors ${
+                    isIrrelevant
+                      ? 'border-transparent opacity-40 cursor-not-allowed'
+                      : isSelected
+                        ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-900/20'
+                        : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                  }`}>
                     <input
                       type="checkbox"
                       className="mt-0.5 w-3 h-3 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 dark:bg-bg-dark"
                       checked={isSelected}
+                      disabled={isIrrelevant}
                       onChange={(e) => {
                         if (e.target.checked) setSelectedTests(prev => [...prev, testId]);
                         else setSelectedTests(prev => prev.filter(v => v !== testId));
                       }}
                     />
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-slate-900 dark:text-white leading-tight">{availableTests[testId].name}</span>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-900 dark:text-white leading-tight">{availableTests[testId].name}</span>
+                        {isRecommended && (
+                          <span className="text-[7px] font-black bg-emerald-500 text-white px-1 py-0.5 rounded uppercase tracking-wider">✓ Rec.</span>
+                        )}
+                        {isIrrelevant && (
+                          <span className="text-[7px] font-black bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1 py-0.5 rounded uppercase tracking-wider">N/A</span>
+                        )}
+                      </div>
                       <span className="text-[8px] text-slate-500 dark:text-slate-400 leading-tight mt-1">{availableTests[testId].description}</span>
                     </div>
                   </label>

@@ -14,7 +14,7 @@ interface ResultsDisplayProps {
  * Componente que muestra el flujo de datos generados.
  * Incluye visualización de números normalizados, detección visual de ciclos y límites de renderizado.
  */
-const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodName, emptyStateAction }) => {
+const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodName, emptyStateAction, onDownload }) => {
     // Límite de renderizado para evitar problemas de rendimiento con secuencias muy largas
     const limiteVista = 5000;
     const numerosAMostrar = numbers.length > limiteVista ? numbers.slice(-limiteVista) : numbers;
@@ -34,19 +34,21 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                         {methodName}
                     </p>
                 </div>
-                <div className="text-right flex flex-col items-end gap-2">
-                    <span className="text-2xl font-black text-black dark:text-white leading-none tabular-nums">
-                        {numbers.length}
-                    </span>
-                    <p className="text-[9px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest">Iteraciones</p>
+                <div className="flex items-center gap-3">
                     {onDownload && numbers.length > 0 && (
                         <button
                             onClick={onDownload}
-                            className="flex items-center gap-1.5 px-2.5 py-1 bg-brand-primary hover:bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm active:scale-95"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-primary hover:bg-white border border-brand-primary text-white hover:text-brand-primary text-[9px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm active:scale-95"
                         >
-                            <Download size={11} /> Exportar
+                            <Download size={11} /> Exportar Datos
                         </button>
                     )}
+                    <div className="text-right">
+                        <span className="text-2xl font-black text-black dark:text-white leading-none tabular-nums">
+                            {numbers.length}
+                        </span>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest">Iteraciones</p>
+                    </div>
                 </div>
             </div>
 
