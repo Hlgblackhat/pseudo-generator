@@ -1,5 +1,5 @@
-import { GeneratorMethod } from '../engines/types';
-import type { GeneratorMethodType } from '../engines/types';
+import { GeneratorMethod } from './types';
+import type { GeneratorMethodType } from './types';
 
 /**
  * Define los criterios de calidad aplicables a cada motor PRNG.

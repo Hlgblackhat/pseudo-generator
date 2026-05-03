@@ -3,6 +3,7 @@ import Laboratory from './components/Laboratory';
 import Documentation from './components/Documentation';
 import Home from './components/Home';
 import VariablesLab from './components/VariablesLab';
+import StatisticalLab from './components/StatisticalLab';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/laboratory" element={<Laboratory />} />
       <Route path="/variables" element={<VariablesLab />} />
+      <Route path="/stats" element={<StatisticalLab />} />
       <Route path="/doc" element={<Documentation />}>
         <Route path=":docId" element={<Documentation />} />
         <Route index element={<Navigate to="README" replace />} />

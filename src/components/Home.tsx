@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Link } from 'react-router-dom';
-import { Beaker, Activity, FileSpreadsheet, Cpu } from 'lucide-react';
+import { Beaker, Activity, FileSpreadsheet, Cpu, Library } from 'lucide-react';
 import { ModeToggle } from './mode-toggle';
 
 const Home: FC = () => {
@@ -26,7 +26,7 @@ const Home: FC = () => {
           Plataforma avanzada para la simulación, generación y prueba empírica de números y variables pseudoaleatorias.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
           
           {/* Card 1: Números Aleatorios */}
           <Link to="/laboratory" className="group bg-white dark:bg-bg-card p-8 rounded-3xl border border-slate-200 dark:border-border-subtle shadow-sm hover:shadow-xl hover:shadow-brand-primary/10 hover:border-brand-primary/50 transition-all text-left flex flex-col gap-4 relative overflow-hidden">
@@ -60,6 +60,25 @@ const Home: FC = () => {
               <div className="flex flex-wrap gap-2">
                 <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300">Transformación</span>
                 <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300">Distribuciones</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 3: Pruebas Estadísticas */}
+          <Link to="/stats" className="group bg-white dark:bg-bg-card p-8 rounded-3xl border border-slate-200 dark:border-border-subtle shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-500/50 transition-all text-left flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 dark:bg-violet-900/20 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
+            <div className="p-3 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-2xl w-fit relative z-10">
+              <Library size={24} />
+            </div>
+            <div className="relative z-10 mt-2">
+              <h2 className="text-2xl font-black tracking-tight mb-2">Pruebas Estadísticas</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+                Aplica Chi-cuadrado, K-S, Rachas, Medias, Varianza, Poker y Series a cualquier secuencia. Importa tu propio Excel o usa los últimos datos generados.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300">Diagnóstico</span>
+                <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300">7 Pruebas</span>
+                <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300">Criterios por Motor</span>
               </div>
             </div>
           </Link>
