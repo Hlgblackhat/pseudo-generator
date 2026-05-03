@@ -21,28 +21,34 @@ export class LFSRGenerator implements PRNG {
     }
 
     /**
-     * Calcula el siguiente estado realizando un desplazamiento de bits y XOR.
-     * Retorna el valor normalizado dividiendo por la capacidad máxima del registro.
+     * Calcula el siguiente estado realizando desplazamientos de bits y XOR.
+     * Itera 16 veces para extraer 16 bits aleatorios y conformar un número uniforme.
      */
     next(): number {
-        const bitSalida = this.estado & 1; // Extraemos el bit menos significativo
-        this.estado >>= 1; // Desplazamos a la derecha
+        let resultBits = 0;
+        for (let i = 0; i < this.longitudBits; i++) {
+            const bitSalida = this.estado & 1; // Extraemos el bit menos significativo
+            this.estado >>>= 1; // Desplazamiento lógico a la derecha
 
-        // Si el bit extraído era 1, aplicamos la retroalimentación XOR (Mascara)
-        if (bitSalida === 1) {
-            this.estado ^= this.mascara;
+            // Si el bit extraído era 1, aplicamos la retroalimentación XOR (Mascara)
+            if (bitSalida === 1) {
+                this.estado ^= this.mascara;
+            }
+            
+            // Acumulamos el bit
+            resultBits = (resultBits << 1) | bitSalida;
         }
 
         // Normalización dividiendo por 2^longitudBits
-        return this.estado / Math.pow(2, this.longitudBits);
+        return (resultBits >>> 0) / Math.pow(2, this.longitudBits);
     }
 
     /**
      * Sugiere una semilla válida (distinta de cero).
-     * En el LFSR cualquier valor != 0 es válido; sugerimos un valor interesante.
+     * En el LFSR cualquier valor != 0 es válido; sugerimos un patrón alternante.
      */
     suggestParams(): Partial<import('./types').GeneratorParams> {
-        return { seed: Math.floor(Math.random() * 65534) + 1 }; // Valor aleatorio entre 1 y 65535
+        return { seed: 43690 }; // Valor determinista (0xAAAA) que cumple académicamente
     }
 
     /**

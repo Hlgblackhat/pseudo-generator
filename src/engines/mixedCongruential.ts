@@ -66,12 +66,12 @@ export class MixedCongruential implements PRNG {
             product *= (product % 2 === 0 ? 2 : 4);
         }
 
-        // Sugerimos un 'a' que sea 1 + k*product (donde k es entero aleatorio)
-        const k = Math.floor(Math.random() * 5) + 1; // k entre 1 y 5
+        // Sugerimos un 'a' que sea 1 + k*product (donde k es determinista)
+        const k = 3; // k determinista
         const aSugerido = 1 + (k * product);
 
-        // Buscamos un c aleatorio que sea primo relativo con m (gcd(c, m) === 1)
-        let cSugerido = Math.floor(Math.random() * (this.m - 1)) + 1;
+        // Buscamos un c determinista que sea primo relativo con m (gcd(c, m) === 1)
+        let cSugerido = Math.floor(this.m / 2) + 1;
         while (gcd(cSugerido, this.m) !== 1) {
             cSugerido = (cSugerido + 1) % this.m || 1;
         }

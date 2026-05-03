@@ -12,7 +12,8 @@ import {
   TestTube,
   Menu,
   X,
-  Search
+  Search,
+  Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

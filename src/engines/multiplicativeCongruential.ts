@@ -38,9 +38,9 @@ export class MultiplicativeCongruential implements PRNG {
             const aSugerido = base * 8 + 3; // garantiza a ≡ 3 (mod 8)
             return { a: aSugerido, seed: 1 }; // semilla impar
         }
-        // Caso general: un multiplicador primo relativo aleatorio
-        const aSugerido = Math.floor(Math.random() * (this.m / 4)) * 4 + 3;
-        return { a: aSugerido };
+        // Caso general: determinista, calculamos un 'a' válido usando la propia m
+        const aSugerido = Math.max(3, Math.floor(this.m / 8) * 4 + 3);
+        return { a: aSugerido, seed: 13 };
     }
 
     /**

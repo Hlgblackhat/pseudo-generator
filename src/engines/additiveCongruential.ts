@@ -7,20 +7,22 @@ import type { PRNG, ValidationResult } from './types';
  */
 export class AdditiveCongruential implements PRNG {
     name = "Congruencial Aditivo";
-    private history: number[] = []; // Almacena la secuencia para el cálculo aditivo
+    private state: number[] = []; // Buffer circular
     private m: number; // Módulo
     private k: number; // Valor de retraso (u orden del generador)
+    private pointer: number; // Puntero actual
 
     constructor(seed: number, k: number, m: number) {
         this.m = m;
         this.k = Math.max(2, k);
+        this.pointer = 0;
 
-        // Inicializamos el historial usando un LCG simple para generar los primeros k valores
+        // Inicializamos el buffer usando un LCG simple para generar los primeros k valores
         // necesarios para empezar el proceso aditivo basándonos en una única semilla.
         let ultimo = seed;
         for (let i = 0; i < this.k; i++) {
             ultimo = (31 * ultimo + 7) % m;
-            this.history.push(ultimo);
+            this.state.push(ultimo);
         }
     }
 
@@ -29,11 +31,18 @@ export class AdditiveCongruential implements PRNG {
      * Retorna el valor normalizado en [0, 1).
      */
     next(): number {
-        const n = this.history.length;
-        const nuevoValor = (this.history[n - 1] + this.history[n - this.k]) % this.m;
-        this.history.push(nuevoValor);
+        // Obtenemos los índices para el buffer circular
+        const prevIdx = (this.pointer + this.k - 1) % this.k;
+        const oldestIdx = this.pointer;
 
-        // Mantenemos el historial internamente para los cálculos siguientes
+        // x(i) = (x(i-1) + x(i-k)) mod m
+        const nuevoValor = (this.state[prevIdx] + this.state[oldestIdx]) % this.m;
+        
+        // Reemplazamos el valor más antiguo en el buffer
+        this.state[this.pointer] = nuevoValor;
+        // Avanzamos el puntero
+        this.pointer = (this.pointer + 1) % this.k;
+
         return nuevoValor / this.m;
     }
 

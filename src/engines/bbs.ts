@@ -19,11 +19,19 @@ export class BBSGenerator implements PRNG {
 
     /**
      * Genera el siguiente número normalizado en el rango [0, 1).
+     * Extrae 32 bits (1 bit de paridad por iteración) para formar una fracción uniforme.
      */
     next(): number {
-        // x_{n+1} = (x_n * x_n) mod M
-        this.x = Number((BigInt(this.x) * BigInt(this.x)) % BigInt(this.M));
-        return this.x / this.M;
+        let resultBits = 0;
+        // Generamos 32 bits de paridad para construir una buena fracción
+        for (let i = 0; i < 32; i++) {
+            // x_{n+1} = (x_n * x_n) mod M
+            this.x = Number((BigInt(this.x) * BigInt(this.x)) % BigInt(this.M));
+            const paridad = this.x % 2; // Extraemos el bit de paridad
+            resultBits = (resultBits << 1) | paridad;
+        }
+        // Retornamos normalizando por 2^32 (con resultBits como entero sin signo)
+        return (resultBits >>> 0) / 4294967296; // 2^32
     }
 
     /**

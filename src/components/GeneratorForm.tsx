@@ -16,9 +16,9 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     // Estado consolidado para todos los parámetros de los diferentes algoritmos
     const [params, setParams] = useState({
         seed: 42,
-        a: 21,
-        c: 3,
-        m: 100,
+        a: 1664525,
+        c: 1013904223,
+        m: 4294967296, // 2^32, mejor para las pruebas estadísticas
         k: 10, // Retraso mayor (LFG)
         j: 7, // Retraso menor (LFG)
         d: 4, // Cantidad de dígitos para Cuadrados Medios
