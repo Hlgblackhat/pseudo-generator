@@ -1,11 +1,13 @@
 import type { FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Download } from 'lucide-react';
 
 interface ResultsDisplayProps {
     numbers: number[];
     repeatIndex: number | null;
     methodName: string;
     emptyStateAction?: React.ReactNode;
+    onDownload?: () => void;
 }
 
 /**
@@ -32,11 +34,19 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                         {methodName}
                     </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-2">
                     <span className="text-2xl font-black text-black dark:text-white leading-none tabular-nums">
                         {numbers.length}
                     </span>
                     <p className="text-[9px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest">Iteraciones</p>
+                    {onDownload && numbers.length > 0 && (
+                        <button
+                            onClick={onDownload}
+                            className="flex items-center gap-1.5 px-2.5 py-1 bg-brand-primary hover:bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm active:scale-95"
+                        >
+                            <Download size={11} /> Exportar
+                        </button>
+                    )}
                 </div>
             </div>
 

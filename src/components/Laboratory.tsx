@@ -14,7 +14,6 @@ import { setSharedNumbers } from '../store/dataStore';
 import { exportGeneratorToExcel } from '../utils/excelExport';
 import pkg from '../../package.json';
 import {
-  Download,
   BarChart3,
   Cpu,
   History,
@@ -188,14 +187,7 @@ function Laboratory() {
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
-          {numbers.length > 0 && (
-            <button
-              onClick={() => exportGeneratorToExcel(numbers, methodName)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-brand-primary hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm shadow-brand-primary/20 active:scale-95"
-            >
-              <Download size={13} /> Descargar Excel
-            </button>
-          )}
+
           <Link
             to="/doc"
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-brand-primary transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95"
@@ -274,6 +266,7 @@ function Laboratory() {
             numbers={numbers}
             repeatIndex={repeatState.repeatIndex}
             methodName={methodName}
+            onDownload={() => exportGeneratorToExcel(numbers, methodName)}
             emptyStateAction={
               <ExcelUploader onNumbersExtracted={(nums) => {
                 setNumbers(nums);
