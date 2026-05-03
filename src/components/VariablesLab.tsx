@@ -6,7 +6,7 @@ import { getSharedNumbers, subscribeToSharedNumbers } from '../store/dataStore';
 import ExcelUploader from './ExcelUploader';
 import { availableVariables } from '../variables';
 import type { VariableParams } from '../variables';
-import ResultsDisplay from './ResultsDisplay';
+import VariablesResultTable from './VariablesResultTable';
 import { exportVariablesToExcel } from '../utils/excelExport';
 
 const VariablesLab = () => {
@@ -196,12 +196,21 @@ const VariablesLab = () => {
                 </aside>
 
                 <section className="flex-1 flex flex-col overflow-hidden">
-                    <ResultsDisplay
-                        numbers={transformedNumbers}
-                        repeatIndex={null}
-                        methodName={transformedNumbers.length > 0 ? currentGenerator.name : 'Sin resultados'}
-                        emptyStateAction={uploaderNode}
-                    />
+                    {transformedNumbers.length > 0 ? (
+                        <VariablesResultTable
+                            uniforms={baseUniforms}
+                            transformed={transformedNumbers}
+                            distributionName={currentGenerator.name}
+                        />
+                    ) : (
+                        <div className="bg-white dark:bg-bg-card rounded-xl border border-slate-200 dark:border-border-subtle h-full flex flex-col shadow-sm overflow-hidden transition-colors">
+                            <div className="flex-1 flex flex-col items-center justify-center p-8">
+                                <div className="w-full max-w-sm space-y-4">
+                                    {uploaderNode}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </section>
             </main>
         </div>
