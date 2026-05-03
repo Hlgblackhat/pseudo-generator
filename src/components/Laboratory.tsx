@@ -9,9 +9,12 @@ import type { GeneratorParams } from '../engines';
 import { availableTests, runSelectedTests } from '../tests';
 import type { TestResult } from '../tests';
 import { motion, AnimatePresence } from 'framer-motion';
+import ExcelUploader from './ExcelUploader';
+import { setSharedNumbers } from '../store/dataStore';
+import { exportGeneratorToExcel } from '../utils/excelExport';
 import pkg from '../../package.json';
 import {
-  Beaker,
+  Download,
   BarChart3,
   Cpu,
   History,
@@ -22,7 +25,8 @@ import {
   Maximize2,
   Minimize2,
   Github,
-  BookOpen
+  BookOpen,
+  Home
 } from 'lucide-react';
 
 function Laboratory() {
@@ -97,6 +101,7 @@ function Laboratory() {
       numerosLocales.push(siguienteNum);
       if (i % (limiteFinal > 500 ? 100 : 10) === 0 || i === limiteFinal - 1) {
         setNumbers([...numerosLocales]);
+        setSharedNumbers([...numerosLocales]);
         if (i === 0) setRepeatState(prev => ({ ...prev, firstValue: primerGenerado }));
         const retraso = limiteFinal > 1000 ? 1 : 10;
         await new Promise(resolve => setTimeout(resolve, retraso));
@@ -165,9 +170,9 @@ function Laboratory() {
 
       <header className="px-6 py-3 border-b border-slate-200 dark:border-border-subtle bg-white/80 dark:bg-bg-card/80 backdrop-blur-xl flex justify-between items-center z-20 shrink-0 shadow-sm transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-black dark:bg-brand-primary text-white rounded-lg shadow-sm">
-            <Beaker className="w-4 h-4" />
-          </div>
+          <Link to="/" className="p-1.5 bg-black dark:bg-brand-primary text-white rounded-lg shadow-sm hover:scale-105 transition-transform">
+            <Home className="w-4 h-4" />
+          </Link>
           <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-widest uppercase">
             Pseudo<span className="text-brand-primary italic">Gen</span>
           </h1>
@@ -183,6 +188,14 @@ function Laboratory() {
               {isGenerating ? 'Muestreando' : 'En Espera'}
             </span>
           </div>
+          {numbers.length > 0 && (
+            <button
+              onClick={() => exportGeneratorToExcel(numbers, methodName)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-brand-primary hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm shadow-brand-primary/20 active:scale-95"
+            >
+              <Download size={13} /> Descargar Excel
+            </button>
+          )}
           <Link
             to="/doc"
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-brand-primary transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95"
@@ -206,6 +219,7 @@ function Laboratory() {
       <main className="flex-1 flex overflow-hidden p-4 gap-4 relative z-10">
         <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
           <GeneratorForm onGenerate={startGeneration} isLoading={isGenerating} />
+          
           <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-lg p-4 space-y-3 shadow-sm transition-colors">
             <h4 className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase flex items-center gap-2">
               <History size={14} className="text-brand-primary" /> Log de Entropía
@@ -256,7 +270,20 @@ function Laboratory() {
         </aside>
 
         <section className="flex-1 flex flex-col overflow-hidden">
-          <ResultsDisplay numbers={numbers} repeatIndex={repeatState.repeatIndex} methodName={methodName} />
+          <ResultsDisplay
+            numbers={numbers}
+            repeatIndex={repeatState.repeatIndex}
+            methodName={methodName}
+            emptyStateAction={
+              <ExcelUploader onNumbersExtracted={(nums) => {
+                setNumbers(nums);
+                setSharedNumbers(nums);
+                setMethodName("Datos Importados (Excel)");
+                setRepeatState({ firstValue: null, repeatIndex: null });
+                setValidation({ errors: [], warnings: [], isFullPeriod: true });
+              }} />
+            }
+          />
         </section>
 
         <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pl-1">
