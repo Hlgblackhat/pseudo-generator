@@ -5,6 +5,7 @@ import Home from './components/Home';
 import VariablesLab from './components/VariablesLab';
 import StatisticalLab from './components/StatisticalLab';
 
+// Suite advanced PRNG - v1.1.0
 function App() {
   return (
     <Routes>

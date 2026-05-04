@@ -48,3 +48,29 @@ export function exportVariablesToExcel(
     const filename = `${distributionName.replace(/[\s()\/]/g, '_')}_variables.xlsx`;
     xlsx.writeFile(wb, filename);
 }
+
+/**
+ * Exporta el análisis de frecuencias de una variable aleatoria a Excel.
+ */
+export function exportFrequenciesToExcel(
+    intervals: any[],
+    variableName: string
+) {
+    const rows = intervals.map((interval, i) => ({
+        'Clase #': i + 1,
+        'Límite Inferior': parseFloat(interval.min.toFixed(8)),
+        'Límite Superior': parseFloat(interval.max.toFixed(8)),
+        'Freq. Absoluta (fi)': interval.count,
+        'Freq. Relativa (hi)': parseFloat(interval.relativeFrequency.toFixed(8)),
+        'Freq. Porcentual (%)': parseFloat((interval.relativeFrequency * 100).toFixed(2)),
+    }));
+
+    const ws = xlsx.utils.json_to_sheet(rows);
+    const wb = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(wb, ws, 'Tabla de Frecuencias');
+
+    ws['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+
+    const filename = `${variableName.replace(/[\s()\/]/g, '_')}_frecuencias.xlsx`;
+    xlsx.writeFile(wb, filename);
+}

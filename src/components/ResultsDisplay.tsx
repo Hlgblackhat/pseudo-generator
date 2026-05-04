@@ -1,6 +1,7 @@
-import type { FC } from 'react';
+import React from 'react';
+import { type FC, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Clock } from 'lucide-react';
 
 interface ResultsDisplayProps {
     numbers: number[];
@@ -8,15 +9,108 @@ interface ResultsDisplayProps {
     methodName: string;
     emptyStateAction?: React.ReactNode;
     onDownload?: () => void;
+    isGenerating?: boolean;
+    isPaused?: boolean;
+    simulationTime?: number;
 }
+
+/**
+ * Utilidad para formatear el tiempo de simulación de manera legible.
+ * Escala automáticamente de segundos a minutos u horas.
+ */
+const formatTime = (ms: number) => {
+    if (ms === 0) return "0.0000s";
+    const totalSeconds = ms / 1000;
+    
+    if (totalSeconds < 60) {
+        return `${totalSeconds.toFixed(4)}s`;
+    }
+    
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = (totalSeconds % 60).toFixed(2);
+    
+    if (minutes < 60) {
+        return `${minutes}m ${seconds}s`;
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m ${seconds}s`;
+};
+
+/**
+ * Sub-componente dedicado para el cronómetro para evitar re-renders innecesarios
+ * del listado principal de números durante la generación.
+ */
+const LiveTimer: FC<{ isGenerating: boolean, isPaused?: boolean, simulationTime?: number }> = ({ isGenerating, isPaused, simulationTime }) => {
+    const timeRef = useRef<HTMLSpanElement>(null);
+    const requestRef = useRef<number | null>(null);
+    const startTimeRef = useRef<number | null>(null);
+    const accumulatedRef = useRef(0);
+
+    const animate = (time: number) => {
+        if (startTimeRef.current !== null && timeRef.current) {
+            const elapsed = accumulatedRef.current + (time - startTimeRef.current);
+            timeRef.current.textContent = formatTime(elapsed);
+        }
+        requestRef.current = requestAnimationFrame(animate);
+    };
+
+    useEffect(() => {
+        if (isGenerating && !isPaused) {
+            startTimeRef.current = performance.now();
+            requestRef.current = requestAnimationFrame(animate);
+        } else if (isPaused) {
+            if (requestRef.current !== null) {
+                cancelAnimationFrame(requestRef.current);
+            }
+            if (startTimeRef.current !== null) {
+                accumulatedRef.current += performance.now() - startTimeRef.current;
+            }
+            startTimeRef.current = null;
+        } else {
+            // Detener o Resetear
+            if (requestRef.current !== null) {
+                cancelAnimationFrame(requestRef.current);
+            }
+            if (timeRef.current) {
+                timeRef.current.textContent = formatTime(simulationTime || 0);
+            }
+            startTimeRef.current = null;
+            accumulatedRef.current = 0;
+        }
+        return () => {
+            if (requestRef.current !== null) cancelAnimationFrame(requestRef.current);
+        };
+    }, [isGenerating, isPaused, simulationTime]);
+
+    return (
+        <div className="flex flex-col items-center px-6 border-x border-slate-100 dark:border-slate-800">
+            <span 
+                ref={timeRef}
+                className={`text-2xl font-black tabular-nums leading-none transition-colors ${
+                    isGenerating 
+                        ? (isPaused ? 'text-amber-500' : 'text-sky-400') 
+                        : 'text-sky-500'
+                }`}
+            >
+                {formatTime(simulationTime || 0)}
+            </span>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest mt-1 flex items-center gap-1">
+                <Clock size={10} className={isGenerating && !isPaused ? 'animate-spin' : ''} /> 
+                {isGenerating ? (isPaused ? 'En Pausa' : 'Cronómetro') : 'Simulación'}
+            </p>
+        </div>
+    );
+};
 
 /**
  * Componente que muestra el flujo de datos generados.
  * Incluye visualización de números normalizados, detección visual de ciclos y límites de renderizado.
  */
-const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodName, emptyStateAction, onDownload }) => {
-    // Límite de renderizado para evitar problemas de rendimiento con secuencias muy largas
+const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodName, emptyStateAction, onDownload, isGenerating = false, isPaused = false, simulationTime }) => {
     const limiteVista = 5000;
+
     const numerosAMostrar = numbers.length > limiteVista ? numbers.slice(-limiteVista) : numbers;
     const indiceInicio = Math.max(0, numbers.length - limiteVista);
 
@@ -24,30 +118,55 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
         <div className="bg-white dark:bg-bg-card rounded-xl border border-slate-200 dark:border-border-subtle h-full flex flex-col shadow-sm relative overflow-hidden group transition-colors">
 
             {/* Cabecera de la columna de resultados */}
-            <div className="p-6 border-b border-slate-100 dark:border-border-subtle flex justify-between items-center bg-slate-50/50 dark:bg-bg-dark/50">
-                <div>
-                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase flex items-center gap-2">
-                        <div className="w-1.5 h-6 bg-black dark:bg-brand-primary rounded-full" />
-                        Flujo de Datos
-                    </h3>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest mt-1">
-                        {methodName}
-                    </p>
+            {/* Cabecera de la columna de resultados */}
+            <div className="p-6 border-b border-slate-100 dark:border-border-subtle flex justify-between items-center bg-slate-50/50 dark:bg-bg-dark/50 shrink-0">
+                <div className="flex items-center gap-4">
+                    <div className="w-1.5 h-10 bg-black dark:bg-brand-primary rounded-full" />
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
+                                Flujo de Datos
+                            </h3>
+                            {isGenerating ? (
+                                <div className={`flex items-center gap-2 px-2.5 py-1 border rounded-full ${
+                                    isPaused 
+                                        ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800' 
+                                        : 'bg-sky-50 dark:bg-sky-900/30 border-sky-200 dark:border-sky-800'
+                                }`}>
+                                    <div className={`w-1 h-1 rounded-full ${isPaused ? 'bg-amber-500' : 'bg-sky-500 animate-pulse'}`} />
+                                    <span className={`text-[9px] font-black uppercase tracking-widest ${isPaused ? 'text-amber-600 dark:text-amber-400' : 'text-sky-600 dark:text-sky-400'}`}>
+                                        {isPaused ? 'Pausado' : 'Muestreando'}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full">
+                                    <div className="w-1 h-1 bg-slate-400 rounded-full" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Reposo</span>
+                                </div>
+                            )}
+                        </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest mt-1.5">
+                            {methodName}
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-8">
                     {onDownload && numbers.length > 0 && (
                         <button
                             onClick={onDownload}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-primary hover:bg-white border border-brand-primary text-white hover:text-brand-primary text-[9px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-brand-primary text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
                         >
-                            <Download size={11} /> Exportar Datos
+                            <Download size={14} /> Exportar
                         </button>
                     )}
+
+                    <LiveTimer isGenerating={isGenerating} isPaused={isPaused} simulationTime={simulationTime} />
+
                     <div className="text-right">
-                        <span className="text-2xl font-black text-black dark:text-white leading-none tabular-nums">
+                        <span className="text-4xl font-black text-black dark:text-white leading-none tabular-nums">
                             {numbers.length}
                         </span>
-                        <p className="text-[9px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest">Iteraciones</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest mt-1">Iteraciones</p>
                     </div>
                 </div>
             </div>
@@ -83,8 +202,8 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                                                         'bg-slate-50 dark:bg-bg-dark border-slate-100 dark:border-border-subtle text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-brand-primary hover:bg-slate-100 dark:hover:bg-bg-dark/80'}
                                             `}
                                         >
-                                            <span className="text-[8px] opacity-40 absolute top-1 left-2 font-bold select-none text-slate-400 dark:text-slate-500">#{indiceGlobal + 1}</span>
-                                            <span className="relative z-10 font-bold tracking-tight">{num.toFixed(6)}</span>
+                                            <span className="text-[10px] opacity-40 absolute top-1.5 left-2.5 font-bold select-none text-slate-400 dark:text-slate-500">#{indiceGlobal + 1}</span>
+                                            <span className="relative z-10 font-bold tracking-tight text-sm">{num.toFixed(6)}</span>
 
                                             {/* Etiqueta para el valor semilla original */}
                                             {esPrimero && (
