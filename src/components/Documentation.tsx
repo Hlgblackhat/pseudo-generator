@@ -16,6 +16,10 @@ import {
   Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css'; // Importación de estilos CSS para las fórmulas
+
 
 /**
  * Estructura de navegación para la documentación
@@ -24,7 +28,7 @@ const DOC_STRUCTURE = [
   {
     title: 'General',
     items: [
-      { id: 'README', name: 'Inicio', path: 'README.md', icon: Book },
+      { id: 'home', name: 'Inicio', path: 'README.md', icon: Book },
       { id: 'UI_UX_LAB', name: 'Manual UI/UX', path: 'UI_UX_LAB.md', icon: Zap },
       { id: 'COMPLIANCE', name: 'Cumplimiento', path: 'COMPLIANCE.md', icon: ShieldAlert },
       { id: 'steps', name: 'Bitácora', path: 'steps.md', icon: FileText },
@@ -40,6 +44,12 @@ const DOC_STRUCTURE = [
       { id: 'lfsr', name: 'LFSR (Bits)', path: 'methods/lfsr.md', icon: Cpu },
       { id: 'bbs', name: 'Blum Blum Shub', path: 'methods/bbs.md', icon: ShieldAlert },
       { id: 'lfg', name: 'Lagged Fibonacci', path: 'methods/lfg.md', icon: Zap },
+    ]
+  },
+  {
+    title: 'Variables Aleatorias',
+    items: [
+      { id: 'random-variables', name: 'Generación Variates', path: 'methods/random-variables.md', icon: Zap },
     ]
   },
   {
@@ -68,17 +78,17 @@ const Documentation = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const currentDocId = docId || 'README';
+  const currentDocId = docId || 'home';
   const currentDoc = findDocById(currentDocId);
 
   useEffect(() => {
     if (!currentDoc) {
-      navigate('/doc/README');
+      navigate('/doc/home');
       return;
     }
 
     setLoading(true);
-    fetch(`/docs/${currentDoc.path}`)
+    fetch(`/docs/${currentDoc.path}?v=${new Date().getTime()}`)
       .then(res => {
         if (!res.ok) throw new Error('No se pudo cargar el documento');
         return res.text();
@@ -121,7 +131,7 @@ const Documentation = () => {
         <div className="p-6 border-b border-slate-200 dark:border-border-subtle flex items-center justify-between overflow-hidden">
           <div className="flex items-center gap-2 whitespace-nowrap">
             <Book className="text-brand-primary w-5 h-5 shrink-0" />
-            <span className="font-black text-slate-800 dark:text-white uppercase tracking-tighter text-sm">Biblioteca Docs</span>
+            <span className="font-black text-slate-800 dark:text-white uppercase tracking-tighter text-sm">PseudoGen Docs</span>
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
@@ -209,7 +219,7 @@ const Documentation = () => {
           <div className="flex items-center gap-3">
              <div className="hidden md:flex flex-col items-end">
                <span className="text-[10px] font-black uppercase text-slate-400 leading-none mb-0.5">Versión v1.1.0</span>
-               <span className="text-[9px] text-slate-400 italic">Documentación Académica</span>
+               <span className="text-[9px] text-slate-400 italic">Documentación</span>
              </div>
              <div className="w-8 h-8 rounded-lg bg-black dark:bg-brand-primary flex items-center justify-center text-white shadow-lg">
                 <FileText size={16} />
@@ -233,21 +243,30 @@ const Documentation = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 key={currentDocId}
-                className="prose prose-slate dark:prose-invert prose-sm md:prose-base max-w-none
-                  prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter
-                  prose-h1:text-4xl prose-h1:mb-8 prose-h1:border-b prose-h1:pb-4 prose-h1:border-slate-100 dark:prose-h1:border-border-subtle
-                  prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed
-                  prose-a:text-brand-primary prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-slate-900 dark:prose-strong:text-white
-                  prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-brand-primary prose-code:before:content-none prose-code:after:content-none
-                  prose-pre:bg-slate-900 dark:prose-pre:bg-black prose-pre:rounded-2xl prose-pre:border prose-pre:border-white/5
-                  prose-img:rounded-2xl prose-img:shadow-2xl
-                  prose-table:border prose-table:border-slate-100 dark:prose-table:border-border-subtle prose-table:rounded-xl
-                  prose-th:bg-slate-50 dark:prose-th:bg-slate-800/50 prose-th:p-4
-                  prose-td:p-4
-                "
+                className="doc-content"
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm, remarkMath]} 
+                  rehypePlugins={[rehypeKatex]}
+                  components={{
+                    a: ({ node, ...props }) => {
+                      const isInternal = props.href?.startsWith('/');
+                      if (isInternal) {
+                        return (
+                          <a 
+                            {...props} 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigate(props.href!);
+                            }}
+                            className="cursor-pointer text-brand-primary hover:underline"
+                          />
+                        );
+                      }
+                      return <a {...props} target="_blank" rel="noopener noreferrer" />;
+                    }
+                  }}
+                >
                   {content}
                 </ReactMarkdown>
               </motion.div>
@@ -286,6 +305,205 @@ const Documentation = () => {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* DISEÑO DE DOCUMENTACIÓN PREMIUM */
+        .doc-content {
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          color: #334155;
+          line-height: 1.7;
+        }
+
+        .dark .doc-content {
+          color: #94a3b8;
+        }
+
+        .doc-content h1 {
+          font-size: 2.5rem;
+          font-weight: 900;
+          color: #0f172a;
+          margin-top: 0;
+          margin-bottom: 2rem;
+          letter-spacing: -0.05em;
+          text-transform: uppercase;
+          border-bottom: 4px solid #f1f5f9;
+          padding-bottom: 1rem;
+        }
+
+        .dark .doc-content h1 {
+          color: #f8fafc;
+          border-bottom-color: #1e293b;
+        }
+
+        .doc-content h2 {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #1e293b;
+          margin-top: 3rem;
+          margin-bottom: 1.25rem;
+          letter-spacing: -0.025em;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .dark .doc-content h2 {
+          color: #e2e8f0;
+        }
+
+        .doc-content h2::before {
+          content: "";
+          width: 4px;
+          height: 1.5rem;
+          background: #3b82f6;
+          border-radius: 4px;
+        }
+
+        .doc-content h3 {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #334155;
+          margin-top: 2rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .dark .doc-content h3 {
+          color: #cbd5e1;
+        }
+
+        .doc-content p {
+          margin-bottom: 1.5rem;
+          font-size: 1rem;
+        }
+
+        .doc-content strong {
+          color: #0f172a;
+          font-weight: 700;
+        }
+
+        .dark .doc-content strong {
+          color: #f8fafc;
+        }
+
+        .doc-content ul, .doc-content ol {
+          margin-bottom: 1.5rem;
+          padding-left: 1.5rem;
+        }
+
+        .doc-content li {
+          margin-bottom: 0.5rem;
+        }
+
+        .doc-content li::marker {
+          color: #3b82f6;
+          font-weight: bold;
+        }
+
+        .doc-content blockquote {
+          border-left: 4px solid #e2e8f0;
+          padding-left: 1.5rem;
+          font-style: italic;
+          color: #64748b;
+          margin: 2rem 0;
+        }
+
+        .dark .doc-content blockquote {
+          border-left-color: #334155;
+          color: #94a3b8;
+        }
+
+        /* TABLAS ACADÉMICAS */
+        .doc-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 2rem 0;
+          font-size: 0.875rem;
+          border: 1px solid #f1f5f9;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .dark .doc-content table {
+          border-color: #1e293b;
+        }
+
+        .doc-content th {
+          background-color: #f8fafc;
+          padding: 0.75rem 1rem;
+          text-align: left;
+          font-weight: 700;
+          text-transform: uppercase;
+          font-size: 0.75rem;
+          letter-spacing: 0.05em;
+          border-bottom: 2px solid #f1f5f9;
+        }
+
+        .dark .doc-content th {
+          background-color: #0f172a;
+          border-bottom-color: #1e293b;
+          color: #94a3b8;
+        }
+
+        .doc-content td {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .dark .doc-content td {
+          border-bottom-color: #1e293b;
+        }
+
+        /* CÓDIGO Y MATH */
+        .doc-content code {
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          background: #f1f5f9;
+          padding: 0.2rem 0.4rem;
+          border-radius: 6px;
+          font-size: 0.875rem;
+          color: #ef4444;
+        }
+
+        .dark .doc-content code {
+          background: #1e293b;
+          color: #f87171;
+        }
+
+        .doc-content pre {
+          background: #0f172a;
+          padding: 1.5rem;
+          border-radius: 16px;
+          overflow-x: auto;
+          margin: 2rem 0;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .doc-content pre code {
+          background: transparent;
+          padding: 0;
+          color: #e2e8f0;
+          font-size: 0.8rem;
+        }
+
+        .katex-display {
+          margin: 2rem 0 !important;
+          padding: 1.5rem;
+          background: #f8fafc;
+          border-radius: 16px;
+          overflow-x: auto;
+        }
+
+        .dark .katex-display {
+          background: #0f172a;
+        }
+
+        .doc-content hr {
+          border: 0;
+          border-top: 1px solid #f1f5f9;
+          margin: 3rem 0;
+        }
+
+        .dark .doc-content hr {
+          border-top-color: #1e293b;
         }
       `}</style>
     </div>

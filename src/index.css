@@ -12,18 +12,19 @@
 }
 
 :root {
-  /* LIGHT THEME (Original Commit Aesthetics) */
-  --brand-primary: #000000;
-  --brand-secondary: #475569;
-  --bg-dark: #f8fafc;
-  --bg-card: #ffffff;
-  --border-subtle: #e2e8f0;
+  /* LIGHT THEME: Neutral Engineering Aesthetic */
+  --brand-primary: #171717;     /* Negro Carbón */
+  --brand-secondary: #525252;   /* Gris Neutro */
+  --bg-dark: #fafafa;           /* Blanco Nube */
+  --bg-card: #ffffff;           /* Blanco Puro */
+  --border-subtle: #e5e5e5;     /* Gris Piedra */
   
-  --color-text: #0f172a;
+  --color-text: #171717;
   
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
+  font-size: 16px;
 
   color-scheme: light;
   color: var(--color-text);
@@ -36,14 +37,14 @@
 }
 
 .dark {
-  /* DARK THEME (Designed in Feat Branch) */
-  --brand-primary: #3b82f6;
-  --brand-secondary: #94a3b8;
-  --bg-dark: #020617;
-  --bg-card: #0f172a;
-  --border-subtle: #1e293b;
+  /* DARK THEME: Deep Slate & Neutral */
+  --brand-primary: #f5f5f5;
+  --brand-secondary: #a3a3a3;
+  --bg-dark: #0a0a0a;
+  --bg-card: #171717;
+  --border-subtle: #262626;
   
-  --color-text: #f8fafc;
+  --color-text: #f5f5f5;
   
   color-scheme: dark;
 }
