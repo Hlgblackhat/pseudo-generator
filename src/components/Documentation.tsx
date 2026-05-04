@@ -218,7 +218,7 @@ const Documentation = () => {
 
           <div className="flex items-center gap-3">
              <div className="hidden md:flex flex-col items-end">
-               <span className="text-[10px] font-black uppercase text-slate-400 leading-none mb-0.5">Versión v1.1.0</span>
+               <span className="text-[10px] font-black uppercase text-slate-400 leading-none mb-0.5">Versión v1.2.0</span>
                <span className="text-[9px] text-slate-400 italic">Documentación</span>
              </div>
              <div className="w-8 h-8 rounded-lg bg-black dark:bg-brand-primary flex items-center justify-center text-white shadow-lg">

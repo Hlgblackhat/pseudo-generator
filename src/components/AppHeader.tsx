@@ -15,7 +15,7 @@ const AppHeader = () => {
                         Pseudo<span className="text-brand-secondary italic">Gen</span>
                     </h1>
                     <span className="hidden sm:inline-block bg-slate-100 dark:bg-slate-800 text-[10px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase tracking-widest whitespace-nowrap">
-                        v1.1.0 official
+                        v1.2.0 official
                     </span>
                 </div>
             </div>
