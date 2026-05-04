@@ -1,15 +1,22 @@
-import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { FC } from 'react';
-import { RefreshCw, HelpCircle, Layers, Settings2, Sparkles } from 'lucide-react';
+import { RefreshCw, HelpCircle, Settings2, Sparkles, Square, Pause, Play, Rocket } from 'lucide-react';
 import { GeneratorMethod, type GeneratorMethodType } from '../engines/types';
 import { createGenerator } from '../engines';
+import CustomSelect from './CustomSelect';
 
 interface GeneratorFormProps {
     onGenerate: (params: any) => void;
     isLoading: boolean;
+    isPaused?: boolean;
+    onPause?: () => void;
+    onResume?: () => void;
+    onStop?: () => void;
 }
 
-const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
+const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading, isPaused, onPause, onResume, onStop }) => {
+    const [searchParams] = useSearchParams();
     // Estado para el método seleccionado por el usuario
     const [method, setMethod] = useState<GeneratorMethodType>(GeneratorMethod.MIXED);
 
@@ -31,16 +38,23 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     /**
      * Manejador genérico para cambios en los inputs del formulario.
      * Soporta inputs numéricos y checkboxes.
+     * Nota: guardamos el valor de string tal cual para no perder el cero al escribir,
+     * pero lo convertimos a número sólo si es válido.
      */
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         const esCheckbox = type === 'checkbox';
-        const valor = esCheckbox ? (e.target as HTMLInputElement).checked : (parseInt(value) || 0);
 
-        setParams(prev => ({
-            ...prev,
-            [name]: valor
-        }));
+        if (esCheckbox) {
+            const checked = (e.target as HTMLInputElement).checked;
+            setParams(prev => ({ ...prev, [name]: checked }));
+        } else {
+            const parsed = parseInt(value, 10);
+            // Solo actualizar si el valor es un número válido o está vacío (para permitir borrar)
+            if (!isNaN(parsed)) {
+                setParams(prev => ({ ...prev, [name]: parsed }));
+            }
+        }
     };
 
     /**
@@ -49,6 +63,97 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         onGenerate({ ...params, method });
+    };
+
+    /**
+     * Ref para manejar el auto-run desde URL sin side-effects en el updater de setParams.
+     */
+    const pendingAutoRun = useRef<{ finalParams: any } | null>(null);
+
+    /**
+     * Efecto para procesar parámetros desde la URL.
+     * IMPORTANTE: No llamamos onGenerate dentro del updater de setParams porque
+     * React StrictMode puede invocar los updaters dos veces.
+     */
+    useEffect(() => {
+        const initMethod = searchParams.get('method') as GeneratorMethodType;
+        if (!initMethod || !Object.values(GeneratorMethod).includes(initMethod)) return;
+
+        // Construimos los overrides desde la URL
+        const overrides: Record<string, number | string | boolean> = {};
+        if (searchParams.has('seed')) overrides.seed = parseInt(searchParams.get('seed')!);
+        if (searchParams.has('a')) overrides.a = parseInt(searchParams.get('a')!);
+        if (searchParams.has('c')) overrides.c = parseInt(searchParams.get('c')!);
+        if (searchParams.has('m')) overrides.m = parseInt(searchParams.get('m')!);
+        if (searchParams.has('p')) overrides.p = parseInt(searchParams.get('p')!);
+        if (searchParams.has('q')) overrides.q = parseInt(searchParams.get('q')!);
+        if (searchParams.has('j')) overrides.j = parseInt(searchParams.get('j')!);
+        if (searchParams.has('k')) overrides.k = parseInt(searchParams.get('k')!);
+        if (searchParams.has('d')) overrides.d = parseInt(searchParams.get('d')!);
+        if (searchParams.has('count')) overrides.count = parseInt(searchParams.get('count')!);
+
+        setMethod(initMethod);
+        setParams(prev => {
+            const newParams = { ...prev, ...overrides };
+
+            // Guardamos en un ref para que el efecto de abajo lo ejecute después del render
+            if (searchParams.get('auto') === '1') {
+                pendingAutoRun.current = { finalParams: { ...newParams, method: initMethod } };
+            }
+
+            return newParams;
+        });
+    }, [searchParams]);
+
+    /**
+     * Efecto separado que detecta el pendingAutoRun y dispara onGenerate de forma segura,
+     * DESPUÉS de que el estado de React ya fue aplicado al DOM.
+     */
+    const onGenerateRef = useRef(onGenerate);
+    useEffect(() => { onGenerateRef.current = onGenerate; });
+
+    useEffect(() => {
+        if (pendingAutoRun.current) {
+            const { finalParams } = pendingAutoRun.current;
+            pendingAutoRun.current = null;
+            // Usamos el ref para evitar stale closure sobre onGenerate
+            onGenerateRef.current(finalParams);
+        }
+    }, [params, method]); // Dispara cada vez que el estado cambia, pero el ref asegura una sola ejecución
+
+    /**
+     * Carga un ejemplo rápido y precarga el formulario.
+     * Usa los valores nuevos directamente (no lee del estado) para evitar closures obsoletas.
+     */
+    const handleQuickTest = (testType: string) => {
+        let newMethod: GeneratorMethodType = GeneratorMethod.MIXED;
+        let overrides: Record<string, number> = {};
+
+        switch(testType) {
+            case 'mixed':
+                newMethod = GeneratorMethod.MIXED;
+                overrides = { seed: 42, a: 21, c: 3, m: 100, count: 100 };
+                break;
+            case 'bbs':
+                newMethod = GeneratorMethod.BBS;
+                overrides = { seed: 12345, p: 499, q: 503, count: 50 };
+                break;
+            case 'lfg':
+                newMethod = GeneratorMethod.LFG;
+                overrides = { seed: 12345, j: 7, k: 10, m: 100000, count: 200 };
+                break;
+            case 'middle_square':
+                newMethod = GeneratorMethod.MIDDLE_SQUARE;
+                overrides = { seed: 12, d: 2, count: 30 };
+                break;
+        }
+
+        setMethod(newMethod);
+        // Usamos el setter funcional para obtener los params actuales y aplicar los overrides
+        setParams(prev => {
+            const newParams = { ...prev, ...overrides };
+            return newParams;
+        });
     };
 
     /**
@@ -116,27 +221,62 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
 
     return (
         <div className="flex flex-col gap-4">
+            {/* Pruebas Rápidas */}
+            <div className="bg-white dark:bg-bg-card p-4 rounded-lg shadow-sm border border-slate-200 dark:border-border-subtle transition-colors">
+                <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Rocket size={14} className="text-brand-primary" /> Pruebas Rápidas
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('mixed')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Súper Bien (Mixto)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('bbs')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Criptografía (BBS)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('lfg')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Ciclos Largos (LFG)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('middle_square')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Cómo Falla (Cuad.)
+                    </button>
+                </div>
+            </div>
+
             {/* Selector de Algoritmo */}
             <div className="bg-white dark:bg-bg-card p-4 rounded-lg shadow-sm border border-slate-200 dark:border-border-subtle transition-colors">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2 block">
+                <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2.5 block">
                     Algoritmo de Generación
                 </label>
-                <div className="relative">
-                    <select
-                        value={method}
-                        onChange={(e) => setMethod(e.target.value as GeneratorMethodType)}
-                        className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white appearance-none focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all cursor-pointer"
-                    >
-                        <option value={GeneratorMethod.MIXED}>Lineal Congruencial (Mixto)</option>
-                        <option value={GeneratorMethod.MULTIPLICATIVE}>Congruencial Multiplicativo</option>
-                        <option value={GeneratorMethod.ADDITIVE}>Congruencial Aditivo</option>
-                        <option value={GeneratorMethod.MIDDLE_SQUARE}>Cuadrados Medios</option>
-                        <option value={GeneratorMethod.LFSR}>LFSR (Bits)</option>
-                        <option value={GeneratorMethod.BBS}>Blum Blum Shub (BBS)</option>
-                        <option value={GeneratorMethod.LFG}>Lagged Fibonacci (LFG)</option>
-                    </select>
-                    <Layers size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
+                <CustomSelect 
+                    value={method}
+                    onChange={(val) => setMethod(val as GeneratorMethodType)}
+                    colorTheme="brand"
+                    options={[
+                        { value: GeneratorMethod.MIXED, label: 'Lineal Congruencial (Mixto)' },
+                        { value: GeneratorMethod.MULTIPLICATIVE, label: 'Congruencial Multiplicativo' },
+                        { value: GeneratorMethod.ADDITIVE, label: 'Congruencial Aditivo' },
+                        { value: GeneratorMethod.MIDDLE_SQUARE, label: 'Cuadrados Medios' },
+                        { value: GeneratorMethod.LFSR, label: 'LFSR (Bits)' },
+                        { value: GeneratorMethod.BBS, label: 'Blum Blum Shub (BBS)' },
+                        { value: GeneratorMethod.LFG, label: 'Lagged Fibonacci (LFG)' }
+                    ]}
+                />
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white dark:bg-bg-card p-5 rounded-lg shadow-sm border border-slate-200 dark:border-border-subtle gap-4 flex flex-col relative overflow-hidden shrink-0 transition-colors">
@@ -158,8 +298,8 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
 
                 <div className="grid grid-cols-2 gap-3">
                     {/* Parámetro común: Semilla */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Semilla ($x_0$)</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Semilla ($x_0$)</label>
                         <input
                             type="number"
                             name="seed"
@@ -178,14 +318,14 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                                 name="a"
                                 value={params.a}
                                 onChange={handleChange}
-                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
+                                className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-4 py-2 text-base text-slate-900 dark:text-white focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums font-medium"
                             />
                         </div>
                     )}
 
                     {method === GeneratorMethod.MIXED && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Incr. ($c$)</label>
+                            <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Incr. ($c$)</label>
                             <input
                                 type="number"
                                 name="c"
@@ -274,7 +414,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
 
                     {(method !== GeneratorMethod.MIDDLE_SQUARE && method !== GeneratorMethod.LFSR && method !== GeneratorMethod.BBS) && (
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
+                            <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Módulo ($m$)</label>
                             <input
                                 type="number"
                                 name="m"
@@ -285,7 +425,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                         </div>
                     )}
                     <div className="space-y-1 col-span-2">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Cantidad a Generar ($n$)</label>
+                        <label className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">Cantidad a Generar ($n$)</label>
                         <input
                             type="number"
                             name="count"
@@ -293,7 +433,7 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                             onChange={handleChange}
                             min="1"
                             max="20000"
-                            className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-3 py-1.5 text-sm font-bold text-brand-primary dark:text-brand-primary focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums"
+                            className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-lg px-4 py-2 text-base font-bold text-brand-primary dark:text-brand-primary focus:ring-1 focus:ring-black dark:focus:ring-brand-primary outline-none transition-all tabular-nums"
                         />
                     </div>
                 </div>
@@ -302,12 +442,12 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 <div className="p-3 bg-slate-50 dark:bg-bg-dark rounded-xl border border-slate-100 dark:border-border-subtle flex items-start gap-2">
                     <HelpCircle size={14} className="text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-1">
-                        <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight italic">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight italic">
                             {getHelpText()}
                         </p>
-                        {(method === GeneratorMethod.MIXED || method === GeneratorMethod.MULTIPLICATIVE || method === GeneratorMethod.BBS || method === GeneratorMethod.LFG) && (
-                            <p className="text-[8px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-tight">
-                                Usa ✨ para sugerir valores óptimos automáticamente.
+                        {isLoading && (
+                            <p className="text-[8px] text-sky-600 dark:text-sky-400 font-bold uppercase tracking-tight">
+                                Generando Secuencia...
                             </p>
                         )}
                     </div>
@@ -334,14 +474,50 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading }) => {
                 </div>
 
                 {/* Botón de acción */}
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full group bg-black dark:bg-brand-primary hover:bg-slate-800 dark:hover:bg-blue-600 text-white text-xs font-black py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                    <RefreshCw size={14} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-[360deg] transition-transform duration-700'}`} />
-                    <span>{isLoading ? 'GENERANDO...' : 'EJECUTAR ALGORITMO'}</span>
-                </button>
+                {!isLoading ? (
+                    <button
+                        type="submit"
+                        className="w-full group bg-sky-600 hover:bg-sky-700 text-white text-xs font-black py-4.5 rounded-2xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-3 cursor-pointer active:scale-[0.98]"
+                    >
+                        <RefreshCw size={16} className="group-hover:rotate-[360deg] transition-transform duration-700" />
+                        <span>EJECUTAR ALGORITMO</span>
+                    </button>
+                ) : (
+                    <div className="space-y-3">
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={isPaused ? onResume : onPause}
+                                className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+                                    isPaused 
+                                        ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20' 
+                                        : 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20'
+                                }`}
+                            >
+                                {isPaused ? (
+                                    <>
+                                        <Play size={14} className="fill-current" />
+                                        <span>Reanudar</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Pause size={14} className="fill-current" />
+                                        <span>Pausar</span>
+                                    </>
+                                )}
+                            </button>
+                            
+                            <button
+                                type="button"
+                                onClick={onStop}
+                                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20"
+                            >
+                                <Square size={14} className="fill-current" />
+                                <span>Detener</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </form>
         </div>
     );
