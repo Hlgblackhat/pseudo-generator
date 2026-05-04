@@ -1,34 +1,34 @@
-# Diseño de Interfaz: Laboratorio de Simulación v2.1
+# Cómo pensamos el diseño de la app
 
-## 🏗️ Arquitectura de 3 Columnas
-El simulador ha sido estructurado en un workspace de tres paneles fijos para maximizar la visibilidad de los datos y el análisis concurrente.
+## 🏗️ Estructura de la pantalla
+Decidimos dividir la pantalla en tres partes para que sea súper fácil ver los datos y analizarlos al mismo tiempo, sin tener que hacer scroll como locos.
 
-### 1. Panel de Parametrización (Izquierda - 20%)
-- **Propósito:** Entrada de datos y control de flujo.
-- **Componentes:** Selector de algoritmo y formulario dinámico de parámetros ($x_0, a, c, m, k, d$).
-- **Dinamicidad:** La interfaz adapta los campos de entrada según el método seleccionado, bloqueando o liberando parámetros específicos (ej: $k$ para aditivo, $d$ para cuadrados medios).
-- **Restricción Académica:** Se han removido los métodos de inicialización aleatoria para garantizar que el usuario tenga control total sobre la reproducibilidad.
+### 1. Los controles (Izquierda - 20%)
+- **¿Para qué sirve?** Para meter los datos.
+- **¿Qué tiene?** El selector del algoritmo y los campos para poner los números ($x_0, a, c, m, k, d$).
+- **La magia:** La interfaz cambia sola dependiendo del algoritmo que elijas. Te esconde los campos que no necesitas y te muestra solo los útiles (ej: $k$ para aditivo, $d$ para cuadrados medios).
+- **Cero trampas:** Quitamos los botones de inicialización automática para que uno tenga el control total de qué números está metiendo.
 
-### 2. Monitor de Secuencia (Centro - 60%)
-- **Propósito:** Visualización masiva de resultados en tiempo real.
-- **Capacidad:** Soporta muesreos de miles de instancias mediante un sistema de scroll independiente.
-- **Código de Colores:**
-  - **Verde Esmeralda:** Identifica la Semilla o primer valor generado.
-  - **Rojo Neón:** Identifica el punto exacto donde la secuencia se repite (Ciclo detectado).
-  - **Gris Slate:** Valores intermedios de la secuencia.
+### 2. La tabla de números (Centro - 60%)
+- **¿Para qué sirve?** Para ver todos los números que van saliendo en tiempo real.
+- **Capacidad:** Aguanta generar miles de números sin que la página se cuelgue.
+- **Colores:**
+  - **Verde Esmeralda:** Es la Semilla, el primer número de todos.
+  - **Rojo:** Te marca el punto exacto donde los números empezaron a repetirse (¡el ciclo!).
+  - **Gris:** Todos los números normales de en medio.
 
-### 3. Analizador de Resultados (Derecha - 20%)
-- **Propósito:** Diagnóstico matemático y estadísticas descriptivas.
-- **Diagnóstico Hull-Dobell:** Predicción del periodo antes y durante la ejecución.
-- **Métricas de Media ($\mu$):** Cálculo dinámico de la media aritmética para verificar la tendencia hacia 0.5 (Uniformidad).
+### 3. Los resultados (Derecha - 20%)
+- **¿Para qué sirve?** Para ver la matemática y las estadísticas detrás de la magia.
+- **Matemática:** Te avisa si estás cumpliendo la regla de Hull-Dobell antes de que le des a generar.
+- **Estadísticas:** Te muestra datos en tiempo real, como la media, para ver si los números sí parecen uniformes o no.
 
 ---
 
-## 🎨 Identidad Visual (Light Mode & Obsidian)
-Se ha optado por un **Tema Claro** con acentos en **Negro Puro** para:
-- Mejorar la legibilidad de números de precisión (6 decimales).
-- Aportar una estética de "Paper Científico" moderna.
-- Reducir la distracción visual durante sesiones de análisis prolongadas.
+## 🎨 Los colores
+Elegimos un **Tema Claro** con detalles bien oscuros porque:
+- Se lee mucho mejor cuando hay números con 6 decimales.
+- Le da un aire de "proyecto universitario serio" pero moderno.
+- No cansa la vista si te quedas horas probando algoritmos.
 
 ## ⚡ Rendimiento
-El sistema utiliza **renderizado por lotes (Batch Rendering)** y truncamiento visual para permitir la generación de hasta 20,000 números sin degradar la respuesta del navegador a 60 FPS.
+Nos aseguramos de que el código renderice los números por lotes, así puedes generar unos 20,000 números sin que el navegador se muera en el intento.
