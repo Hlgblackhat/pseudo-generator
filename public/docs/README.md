@@ -42,6 +42,9 @@ Si quieres ver el simulador en acción sin pensar mucho, mete estos valores en e
 | **Pura criptografía** | BBS | $p=499, q=503, semilla=12345, N=50$ | [🚀 Cargar](/laboratory?method=bbs&seed=12345&p=499&q=503&count=50&auto=1) |
 | **Ciclos largos** | LFG | $j=7, k=10, m=1024, N=200$ | [🚀 Cargar](/laboratory?method=lfg&seed=12345&j=7&k=10&m=1024&count=200&auto=1) |
 | **Para ver cómo falla** | Cuad. Medios | $x_0=12, d=2, N=30$ | [🚀 Cargar](/laboratory?method=middle_square&seed=12&d=2&count=30&auto=1) |
+| **Módulos potencia de 2** | Multiplicativo | $x_0=123, a=5, m=1024, N=100$ | [🚀 Cargar](/laboratory?method=multiplicative&seed=123&a=5&m=1024&count=100&auto=1) |
+| **Uso de memoria** | Aditivo | $x_0=123, k=10, m=1024, N=100$ | [🚀 Cargar](/laboratory?method=additive&seed=123&k=10&m=1024&count=100&auto=1) |
+| **Registros de bits** | LFSR | $semilla=46080, N=100$ | [🚀 Cargar](/laboratory?method=lfsr&seed=46080&count=100&auto=1) |
 
 ---
 

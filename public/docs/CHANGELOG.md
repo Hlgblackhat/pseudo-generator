@@ -8,7 +8,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y e
 ## [v1.2.0] - 2025-05-04
 
 ### Agregado
-- **Pruebas Rápidas (Quick Tests):** Panel en el Laboratorio con 4 botones que precargan parámetros de ejemplo listos para generar de inmediato (Mixto, BBS, LFG, Cuadrados Medios).
+- **Pruebas Rápidas (Quick Tests):** Panel en el Laboratorio con 7 botones (uno por cada motor) que precargan parámetros de ejemplo listos para generar de inmediato.
 - **Deep links desde la documentación:** La tabla de ejemplos en `README.md` ahora tiene un botón "🚀 Cargar" por fila que navega al Laboratorio con todos los parámetros pre-inyectados (incluido `$N$`) a través de query strings en la URL (`?method=mixed&seed=42&a=21&c=3&m=100&count=100&auto=1`).
 - **Soporte de `count` en la URL:** El parámetro `$N$` (cantidad a generar) ahora puede ser inyectado vía query string junto con el resto de la configuración del algoritmo.
 

@@ -146,6 +146,18 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading, isPaused
                 newMethod = GeneratorMethod.MIDDLE_SQUARE;
                 overrides = { seed: 12, d: 2, count: 30 };
                 break;
+            case 'multiplicative':
+                newMethod = GeneratorMethod.MULTIPLICATIVE;
+                overrides = { seed: 123, a: 5, m: 1024, count: 100 };
+                break;
+            case 'additive':
+                newMethod = GeneratorMethod.ADDITIVE;
+                overrides = { seed: 123, k: 10, m: 1024, count: 100 };
+                break;
+            case 'lfsr':
+                newMethod = GeneratorMethod.LFSR;
+                overrides = { seed: 46080, count: 100 };
+                break;
         }
 
         setMethod(newMethod);
@@ -254,6 +266,27 @@ const GeneratorForm: FC<GeneratorFormProps> = ({ onGenerate, isLoading, isPaused
                         className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
                     >
                         Cómo Falla (Cuad.)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('multiplicative')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        M=2ⁿ (Mult.)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('additive')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Memoria (Aditivo)
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleQuickTest('lfsr')}
+                        className="text-[11px] font-bold bg-slate-50 dark:bg-bg-dark text-slate-600 dark:text-slate-300 py-1.5 px-2 rounded hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-brand-primary/20 transition-colors text-left"
+                    >
+                        Bits/LFSR (16-bit)
                     </button>
                 </div>
             </div>
