@@ -1,65 +1,77 @@
-# Generación de Variables Aleatorias
+# Generación de Variables Aleatorias (Método Coss Bu)
 
-Este módulo permite transformar números pseudoaleatorios distribuidos uniformemente $U(0,1)$ en variables que siguen distribuciones de probabilidad específicas, fundamentales para la simulación de procesos estocásticos.
+Este módulo ha sido alineado rigurosamente con la metodología propuesta por **Raúl Coss Bu** en su libro *"Simulación - Un Enfoque Práctico" (Capítulo 4)*. Las transformaciones garantizan una base académica sólida para el modelado de sistemas.
 
 ---
 
 ## 📐 Métodos de Transformación
 
+### 0. Distribución Uniforme (a, b)
+Es el método base para todas las transformaciones. Permite llevar un número $R \sim U(0,1)$ a cualquier rango definido por un límite inferior $a$ y un superior $b$.
+
+$$X = a + (b - a)R$$
+
 ### 1. Método de la Transformada Inversa
-Este método se basa en el teorema de que si $X$ es una variable aleatoria continua con función de distribución acumulada $F(x)$, entonces la variable $U = F(X)$ sigue una distribución uniforme $U(0,1)$. Por lo tanto:
+Se basa en igualar la función de distribución acumulada $F(x)$ a un número aleatorio $R$ y despejar $x$.
 
-$$X = F^{-1}(U)$$
-
-#### Aplicaciones en este laboratorio:
 *   **Distribución Exponencial**: 
-    $$X = -\frac{1}{\lambda} \ln(1-U)$$
-*   **Distribución Triangular**: Se calcula mediante la inversión por tramos de la función de densidad:
-    $$X = \begin{cases} a + \sqrt{U(b-a)(c-a)} & \text{si } U < \frac{c-a}{b-a} \\ b - \sqrt{(1-U)(b-a)(b-c)} & \text{si } U \geq \frac{c-a}{b-a} \end{cases}$$
+    $$X = -\beta \ln(R)$$
+    donde $\beta$ es el tiempo promedio entre eventos.
+*   **Distribución Triangular**: Inversión por tramos de la rampa de densidad:
+    $$X = \begin{cases} a + \sqrt{R(b-a)(c-a)} & \text{si } R < \frac{c-a}{b-a} \\ b - \sqrt{(1-R)(b-a)(b-c)} & \text{si } R \geq \frac{c-a}{b-a} \end{cases}$$
 
 ---
 
-### 2. Algoritmo de Box-Muller (Distribución Normal)
-Dado que la función de distribución acumulada de la Normal no tiene una inversa analítica sencilla, utilizamos la transformación de Box-Muller. Este método toma dos números independientes $U_1, U_2 \sim U(0,1)$ y genera dos variables normales estándar $Z_0, Z_1$:
+### 2. Generación de la Distribución Normal
+Dada la complejidad de invertir analíticamente la Normal, el sistema ofrece dos enfoques:
 
-$$Z_0 = \sqrt{-2 \ln U_1} \cos(2\pi U_2)$$
-$$Z_1 = \sqrt{-2 \ln U_1} \sin(2\pi U_2)$$
+#### A. Técnica de la Suma de 12 (Sustento Académico)
+Es el método propuesto por **Raúl Coss Bu**. Basada en el Teorema del Límite Central, aprovecha que la suma de 12 variables $U(0,1)$ tiene media 6 y varianza 1.
 
-Posteriormente se escala a la media $\mu$ y desviación $\sigma$ deseada: $X = \mu + Z\sigma$.
+$$Z = \left(\sum_{i=1}^{12} R_i\right) - 6$$
 
----
+#### B. Algoritmo de Box-Muller (Eficiencia Computacional)
+Transforma dos números independientes $U_1, U_2 \sim U(0,1)$ en una variable normal estándar mediante una transformación polar:
 
-### 3. Método de Convolución y Aditivo
-Consiste en obtener la variable deseada como suma de otras variables aleatorias más simples.
+$$Z = \sqrt{-2 \ln U_1} \cos(2\pi U_2)$$
 
-*   **Distribución Erlang**: Se obtiene sumando $k$ variables exponenciales independientes con tasa $\lambda$:
-    $$X = -\frac{1}{\lambda} \ln\left(\prod_{i=1}^{k} U_i\right)$$
-*   **Distribución Binomial**: Se modela como la suma de $n$ ensayos de Bernoulli con probabilidad $p$:
-    $$X = \sum_{i=1}^{n} I_i, \quad \text{donde } I_i = 1 \text{ si } U_i \leq p$$
+**Comparativa:** Mientras que la suma de 12 es intuitiva y académica, Box-Muller es más precisa en las "colas" de la distribución y consume 6 veces menos números aleatorios.
 
 ---
 
-### 4. Algoritmo de Poisson (Knuth)
-Para la generación de una variable de Poisson con media $\lambda$, se utiliza el método de multiplicación:
+### 3. Método de Convolución
+Consiste en obtener la variable como suma de otras variables aleatorias independientes.
 
-$$X = \min \left\{ k : \prod_{i=0}^{k} U_i < e^{-\lambda} \right\}$$
+*   **Distribución Erlang**: Suma de $k$ variables exponenciales:
+    $$X = -\frac{1}{\lambda} \ln\left(\prod_{i=1}^{k} R_i\right)$$
+*   **Distribución Binomial**: Suma de $n$ ensayos de Bernoulli:
+    $$X = \sum_{i=1}^{n} I_i, \quad \text{donde } I_i = 1 \text{ si } R_i \leq p$$
 
 ---
 
-## 📊 Análisis de Eficiencia Computacional
+### 4. Distribución de Poisson
+Implementada mediante el procedimiento de multiplicación para variables discretas:
 
-| Distribución | Complejidad | Variables Uniformes Necesarias | Costo Relativo |
+$$X = \min \left\{ k : \prod_{i=0}^{k} R_i < e^{-\lambda} \right\}$$
+
+---
+
+## 📊 Análisis de Eficiencia y Consumo
+
+| Distribución | Método | Consumo de $R_i$ | Complejidad |
 | :--- | :--- | :--- | :--- |
-| **Normal** | $O(n)$ | 2 por cada 2 muestras | Bajo |
-| **Exponencial** | $O(n)$ | 1 por muestra | Muy Bajo |
-| **Poisson** | $O(n \cdot \lambda)$ | Variable (Promedio $\lambda$) | Medio/Alto |
-| **Erlang** | $O(n \cdot k)$ | $k$ por muestra | Medio |
-| **Binomial** | $O(n \cdot N)$ | $N$ por muestra | Alto |
+| **Uniforme** | Transformada Inversa | 1 por muestra | $O(n)$ |
+| **Exponencial** | Transformada Inversa | 1 por muestra | $O(n)$ |
+| **Normal (Coss Bu)** | Suma de 12 | **12 por muestra** | $O(n \cdot 12)$ |
+| **Normal (BM)** | Box-Muller | **2 por cada 2** | $O(n)$ |
+| **Poisson** | Multiplicación | Variable (Promedio $\lambda$) | $O(n \cdot \lambda)$ |
+| **Erlang** | Convolución | $k$ por muestra | $O(n \cdot k)$ |
+| **Binomial** | Convolución | $n$ por muestra | $O(n \cdot n)$ |
 
 ---
 
-## 🛠️ Validación en el Laboratorio
-Para asegurar la calidad de las variables generadas, el sistema implementa:
-1.  **Validación de Uniformidad**: Se verifica que los números de entrada $U(0,1)$ pasen las pruebas de frecuencia.
-2.  **Análisis de Densidad**: Comparación visual entre el histograma empírico y la curva teórica (PDF).
-3.  **Auditoría de Datos**: En la pestaña "Tabla de Datos", se puede observar la trazabilidad exacta de la transformación para cada número generado.
+## 🛠️ Validación Académica
+Para asegurar la fidelidad con el texto de Coss Bu:
+1.  **Sustento en LaTeX**: Todas las ecuaciones en la interfaz coinciden con las del Capítulo 4.
+2.  **Auditoría de Consumo**: La tabla de resultados muestra cuántos números uniformes se "gastaron" para producir la muestra final (especialmente crítico en la Normal).
+3.  **Visualización**: El histograma permite verificar empíricamente que la suma de 12 realmente converge a la campana de Gauss.

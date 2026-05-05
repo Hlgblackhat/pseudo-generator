@@ -8,7 +8,57 @@ import VariablesResultTable from './VariablesResultTable';
 import VariablesCharts from './VariablesCharts';
 import FrequencyTable from './FrequencyTable';
 import AppHeader from './AppHeader';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import CustomSelect from './CustomSelect';
+import { createGenerator, GeneratorMethod } from '../engines';
+import { setSharedNumbers } from '../store/dataStore';
+import { Zap, Play } from 'lucide-react';
+
+const VARIABLE_PRESETS = [
+    {
+        id: 'bank',
+        name: "🏦 Fila de Banco",
+        engine: GeneratorMethod.MIXED,
+        engineParams: { seed: 42, a: 21, c: 3, m: 100 },
+        count: 200,
+        dist: 'exponential',
+        distParams: { lambda: 2 },
+        description: "Llegada de clientes: Motor Mixto (Hull-Dobell) + Distribución Exponencial."
+    },
+    {
+        id: 'quality',
+        name: "🔩 Control Industrial",
+        engine: GeneratorMethod.LFG,
+        engineParams: { p: 7, q: 3, m: 100000 },
+        count: 1200,
+        dist: 'normal',
+        distParams: { mean: 10, stdDev: 0.2 },
+        description: "Diámetros de piezas: LFG (Fibonacci) + Normal (Suma de 12 - Coss Bu)."
+    },
+    {
+        id: 'callcenter',
+        name: "📞 Central Telefónica",
+        engine: GeneratorMethod.LFSR,
+        engineParams: { seed: 0xACE1 },
+        count: 500,
+        dist: 'poisson',
+        distParams: { lambda: 5 },
+        description: "Llamadas por hora: LFSR (Hardware-level) + Distribución de Poisson."
+    }
+];
+
+const PARAM_INSTRUCTIONS: Record<string, { title: string; hint: string }> = {
+    'uniform': { title: "Uniforme (a, b)", hint: "Define un rango donde todos los valores tienen igual probabilidad. 'a' es el límite inferior y 'b' el superior." },
+    'exponential': { title: "Exponencial (λ)", hint: "λ (lambda) es la tasa de ocurrencia. Si llegan 2 clientes por minuto, λ=2. Genera tiempos de espera." },
+    'poisson': { title: "Poisson (λ)", hint: "λ representa el promedio de eventos esperados en un tiempo fijo. El resultado es un número entero de eventos." },
+    'erlang': { title: "Erlang (k, λ)", hint: "Modela procesos con fases. 'k' es el número de fases (debe ser entero). Útil para tiempos de servicio complejos." },
+    'binomial': { title: "Binomial (n, p)", hint: "n = número de intentos, p = probabilidad de éxito (0 a 1). Cuenta cuántos éxitos ocurren en n pruebas." },
+    'triangular': { title: "Triangular (a, b, c)", hint: "Ideal cuando no hay datos. a=mínimo, b=máximo, c=moda (valor más probable)." },
+    'normal': { title: "Normal Suma-12", hint: "μ (media) es el centro de la campana, σ (desviación) es el ancho. Usa el estándar de Coss Bu." },
+    'normal-bm': { title: "Normal Box-Muller", hint: "μ es la media y σ la desviación. Generación trigonométrica de alta precisión." }
+};
 
 const VariablesLab = () => {
     const [baseUniforms, setBaseUniforms] = useState<number[]>(getSharedNumbers());
@@ -40,6 +90,29 @@ const VariablesLab = () => {
         const generator = availableVariables[selectedVar];
         const result = generator.generate(baseUniforms, params);
         setTransformedNumbers(result);
+    };
+
+    const handleQuickTest = (preset: typeof VARIABLE_PRESETS[0]) => {
+        // 1. Crear motor y generar uniformes
+        const engine = createGenerator(preset.engine, preset.engineParams);
+        const uniforms: number[] = [];
+        for (let i = 0; i < preset.count; i++) {
+            uniforms.push(engine.next());
+        }
+
+        // 2. Actualizar estado global y local
+        setSharedNumbers(uniforms);
+        setBaseUniforms(uniforms);
+
+        // 3. Configurar distribución y parámetros
+        setSelectedVar(preset.dist);
+        setParams({ ...params, ...preset.distParams });
+
+        // 4. Ejecutar transformación (usando los nuevos datos)
+        const generator = availableVariables[preset.dist];
+        const result = generator.generate(uniforms, { ...params, ...preset.distParams });
+        setTransformedNumbers(result);
+        setActiveTab('overview');
     };
 
     const handleUpload = (nums: number[]) => {
@@ -120,6 +193,36 @@ const VariablesLab = () => {
                         )}
                     </div>
 
+                    {/* Escenarios Integrados */}
+                    <div className="bg-white dark:bg-bg-card rounded-2xl border border-slate-200 dark:border-border-subtle p-5 shadow-sm space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 border border-amber-100 dark:border-amber-800/50">
+                                <Zap size={16} />
+                            </div>
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Escenarios Integrados</h3>
+                        </div>
+
+                        <div className="space-y-2">
+                            {VARIABLE_PRESETS.map(preset => (
+                                <button
+                                    key={preset.id}
+                                    onClick={() => handleQuickTest(preset)}
+                                    className="w-full group p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-violet-50 dark:hover:bg-violet-900/20 border border-slate-100 dark:border-slate-700 hover:border-violet-200 dark:hover:border-violet-800 rounded-xl transition-all text-left space-y-1"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-black text-slate-700 dark:text-slate-300 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors uppercase tracking-tight">
+                                            {preset.name}
+                                        </span>
+                                        <Play size={10} className="text-slate-300 group-hover:text-violet-500 fill-current opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" />
+                                    </div>
+                                    <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight line-clamp-2">
+                                        {preset.description}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="bg-white dark:bg-bg-card border border-slate-200 dark:border-border-subtle rounded-2xl p-5 shadow-sm space-y-5">
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-violet-500 border border-slate-100 dark:border-slate-700">
@@ -144,6 +247,19 @@ const VariablesLab = () => {
                         </div>
 
                         <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                            {selectedVar === 'uniform' && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Mín (a)</label>
+                                        <input type="number" step="0.1" value={params.a} onChange={e => setParams({...params, a: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Máx (b)</label>
+                                        <input type="number" step="0.1" value={params.b} onChange={e => setParams({...params, b: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
+                                    </div>
+                                </div>
+                            )}
+
                             {(selectedVar === 'exponential' || selectedVar === 'poisson') && (
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Tasa (λ)</label>
@@ -196,18 +312,28 @@ const VariablesLab = () => {
                                 </div>
                             )}
 
-                            {selectedVar === 'normal' && (
+                            {(selectedVar === 'normal' || selectedVar === 'normal-bm') && (
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Media (μ)</label>
-                                        <input type="number" step="0.1" value={params.mean} onChange={e => setParams({...params, mean: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-sm font-mono font-bold" />
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Media (μ)</label>
+                                        <input type="number" step="0.1" value={params.mean} onChange={e => setParams({...params, mean: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Desv (σ)</label>
-                                        <input type="number" step="0.1" value={params.stdDev} onChange={e => setParams({...params, stdDev: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-sm font-mono font-bold" />
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Desv (σ)</label>
+                                        <input type="number" step="0.1" value={params.stdDev} onChange={e => setParams({...params, stdDev: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Panel de Ayuda Académica (Nuevo) */}
+                        <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 border border-violet-100/50 dark:border-violet-800/30 rounded-xl space-y-1.5">
+                            <h4 className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                                {PARAM_INSTRUCTIONS[selectedVar]?.title || "Instrucciones"}
+                            </h4>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-relaxed italic">
+                                {PARAM_INSTRUCTIONS[selectedVar]?.hint || "Configura los parámetros para la transformación."}
+                            </p>
                         </div>
 
                         <button
@@ -276,9 +402,11 @@ const VariablesLab = () => {
                                                 <h4 className="text-xs font-black uppercase text-slate-400 mb-2 tracking-widest flex items-center gap-2">
                                                     <div className="w-1.5 h-3 bg-violet-500 rounded-full" /> Resumen Teórico
                                                 </h4>
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 leading-snug italic line-clamp-3">
-                                                    {currentGenerator.theory}
-                                                </p>
+                                                <div className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                                        {currentGenerator.theory}
+                                                    </ReactMarkdown>
+                                                </div>
                                                 <div className="mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/50">
                                                     <p className="text-xs text-slate-500 dark:text-slate-500 leading-tight">
                                                         {currentGenerator.name === 'Poisson' || currentGenerator.name === 'Binomial' || currentGenerator.name === 'Erlang' 

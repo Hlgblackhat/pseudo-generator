@@ -5,6 +5,20 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y e
 
 ---
 
+## [v1.3.0] - 2025-05-05
+
+### Agregado
+- **Alineación con Raúl Coss Bu:** El módulo de variables aleatorias ha sido reescrito para seguir estrictamente el libro *"Simulación - Un Enfoque Práctico"* (Capítulo 4).
+- **Distribución Uniforme (a, b):** Nueva distribución base para transformaciones lineales de rango.
+- **Renderizado de Fórmulas Académicas:** Integración de `ReactMarkdown` con `rehypeKatex` en el Laboratorio de Variables para mostrar las ecuaciones exactas del libro en formato LaTeX.
+
+### Cambiado
+- **Distribución Normal:** Se reemplazó el algoritmo de Box-Muller por la **Técnica de la Suma de 12 Números Pseudoaleatorios**, el estándar académico propuesto por Coss Bu basado en el Teorema del Límite Central.
+- **Estandarización de Nomenclatura:** Todos los nombres de distribuciones ahora siguen el formato *"Distribución [Nombre]"* para mayor profesionalismo y coherencia con la bibliografía.
+- **Mejora de UI en Resumen Teórico:** Se eliminaron las restricciones de scroll y truncado en la tarjeta de teoría para facilitar la lectura completa de los algoritmos y sus justificaciones matemáticas.
+
+---
+
 ## [v1.2.0] - 2025-05-04
 
 ### Agregado
