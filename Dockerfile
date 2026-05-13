@@ -1,4 +1,4 @@
-# Dockerfile para PseudoGen v1.2.0
+# Dockerfile para PseudoGen v1.3.0
 # Usando un build multi-etapa con Node 22 (Alpine) para optimizar el tamaño
 
 # Etapa 1: Construcción (Build)

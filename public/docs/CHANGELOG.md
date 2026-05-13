@@ -5,17 +5,19 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y e
 
 ---
 
-## [v1.3.0] - 2025-05-05
+## [v1.3.0] - 2026-05-13
 
 ### Agregado
-- **Alineación con Raúl Coss Bu:** El módulo de variables aleatorias ha sido reescrito para seguir estrictamente el libro *"Simulación - Un Enfoque Práctico"* (Capítulo 4).
-- **Distribución Uniforme (a, b):** Nueva distribución base para transformaciones lineales de rango.
-- **Renderizado de Fórmulas Académicas:** Integración de `ReactMarkdown` con `rehypeKatex` en el Laboratorio de Variables para mostrar las ecuaciones exactas del libro en formato LaTeX.
+- **Módulo Laboratorio de Colas (ColasLab):** Implementación completa de simulación de Teoría de Colas basada en eventos discretos.
+- **Topologías de Red:** Soporte para configuraciones en Serie (S1→S2→S3), Paralelo (M/M/s), Múltiples colas independientes y sistemas Híbridos (Multiserie).
+- **Monitor en Vivo:** Visualizador SVG animado que muestra el flujo de clientes desde la entrada hasta los cajeros, con indicadores de estado (ocupado/libre).
+- **Estadísticas Avanzadas:** Reporte de longitud máxima de cola, servidores más rápidos/lentos, utilización del sistema y probabilidad de espera.
+- **Control de Velocidad Observable:** Nuevo control de velocidad escalado en "minutos de simulación por segundo real" para facilitar el análisis visual.
 
-### Cambiado
-- **Distribución Normal:** Se reemplazó el algoritmo de Box-Muller por la **Técnica de la Suma de 12 Números Pseudoaleatorios**, el estándar académico propuesto por Coss Bu basado en el Teorema del Límite Central.
-- **Estandarización de Nomenclatura:** Todos los nombres de distribuciones ahora siguen el formato *"Distribución [Nombre]"* para mayor profesionalismo y coherencia con la bibliografía.
-- **Mejora de UI en Resumen Teórico:** Se eliminaron las restricciones de scroll y truncado en la tarjeta de teoría para facilitar la lectura completa de los algoritmos y sus justificaciones matemáticas.
+### Corregido
+- Bug en el renderizado del reloj del monitor que mostraba la referencia de la función en lugar del tiempo calculado.
+- Inconsistencia en la lógica de selección de servidor para topologías de fila única.
+- Animación de llegada de clientes suavizada para representar mejor el tránsito desde la entrada a la cola.
 
 ---
 

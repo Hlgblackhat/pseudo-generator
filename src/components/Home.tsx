@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Link } from 'react-router-dom';
-import { Beaker, Activity, Cpu, Library, Github, BookOpen } from 'lucide-react';
+import { Beaker, Activity, Cpu, Library, Github, BookOpen, Users } from 'lucide-react';
 import { ModeToggle } from './mode-toggle';
 
 const Home: FC = () => {
@@ -44,7 +44,7 @@ const Home: FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full lg:max-w-6xl">
           
           <Link to="/laboratory" className="group bg-white dark:bg-bg-card p-8 aspect-square rounded-[2.5rem] border border-slate-200 dark:border-border-subtle shadow-sm hover:shadow-2xl hover:shadow-sky-500/10 hover:border-sky-500 transition-all flex flex-col items-center justify-center text-center gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-sky-50 dark:bg-sky-900/10 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-125" />
@@ -81,6 +81,20 @@ const Home: FC = () => {
               <h2 className="text-2xl font-black tracking-tight mb-2">Ponerlos a Prueba</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-2">
                 Mira si tus números de verdad son "aleatorios" aplicándoles pruebas como Chi-Cuadrado o Poker.
+              </p>
+            </div>
+          </Link>
+
+          <Link to="/queues" className="group bg-white dark:bg-bg-card p-8 aspect-square rounded-[2.5rem] border border-slate-200 dark:border-border-subtle shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-500 transition-all flex flex-col items-center justify-center text-center gap-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/10 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-125" />
+            <div className="p-5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-3xl relative z-10 transition-transform group-hover:scale-110">
+              <Users size={32} />
+            </div>
+            <div className="relative z-10">
+              <div className="inline-block px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-[9px] font-black text-indigo-600 dark:text-indigo-400 rounded uppercase tracking-tighter mb-1">Trabajo 2</div>
+              <h2 className="text-2xl font-black tracking-tight mb-2">Teoría de Colas</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                Simula el flujo de usuarios en un sistema de 3 cajeros con diferentes configuraciones de servicio.
               </p>
             </div>
           </Link>

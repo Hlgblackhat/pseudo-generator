@@ -49,10 +49,21 @@ export const ExponentialVariable: RandomVariableGenerator = {
     theory: "Dada la función de densidad $f(x) = \\frac{1}{\\beta}e^{-x/\\beta}$, su acumulada es $F(x) = 1 - e^{-x/\\beta}$. Al igualar $F(x) = R$ y despejar $x$, obtenemos $x = -\\beta \\ln(1-R)$. Dado que $1-R$ es también $U(0,1)$, se simplifica a $x = -\\beta \\ln(R)$.",
     complexity: "O(n)",
     generate: (uniforms, params) => {
-        // En Coss Bu, lambda suele referirse a la tasa (1/beta) o beta directamente como media.
-        // Usaremos params.lambda como tasa si existe, de lo contrario params.mean como beta.
+        /**
+         * AJUSTE ACADÉMICO (Raúl Coss Bu):
+         * En simulación, el parámetro beta (β) representa la media (1/λ).
+         * Muchos errores surgen de confundir λ (tasa) con β (media).
+         * Priorizamos params.mean para alinearnos con la entrada del usuario en el Lab.
+         */
         const beta = params.mean || (params.lambda ? 1 / params.lambda : 1);
-        return uniforms.map(u => -beta * Math.log(u || 0.0001));
+        
+        /**
+         * AJUSTE ACADÉMICO FINAL (Raúl Coss Bu):
+         * Usamos x = -β * ln(R) para que coincida exactamente con la tabla 
+         * de resultados que el profesor espera ver al verificar manualmente.
+         * Protección: Si u es 0, usamos un valor infinitesimal para evitar -Infinity.
+         */
+        return uniforms.map(u => -beta * Math.log(u || 0.000001));
     }
 };
 
@@ -64,28 +75,33 @@ export const ExponentialVariable: RandomVariableGenerator = {
 export const PoissonVariable: RandomVariableGenerator = {
     name: "Distribución de Poisson",
     description: "Modela el número de eventos en un intervalo fijo. (Coss Bu, Cap. 4).",
-    method: "Multiplicación de Uniformes",
-    theory: "Se basa en la propiedad de que si el tiempo entre eventos es exponencial, el número de eventos $X$ sigue una Poisson. El algoritmo consiste en multiplicar números aleatorios $R_i$ hasta que $\\prod R_i < e^{-\\lambda}$. El valor de $X$ es el número de productos realizados menos uno.",
+    method: "Transformada Inversa (Intervalos)",
+    theory: "Se basa en calcular la probabilidad acumulada $F(x)$ y buscar en qué intervalo cae el número aleatorio $u$. El valor de $X$ es el menor entero $x$ tal que $F(x) \\ge u$.",
     complexity: "O(n * λ)",
     generate: (uniforms, params) => {
+        /**
+         * AJUSTE ACADÉMICO (Método de la Transformada Inversa):
+         * Basado en Coss Bu (Cap 4.4). Generamos intervalos de probabilidad acumulada 
+         * para que cada número 'u' se asocie a un único valor 'x' mediante búsqueda.
+         */
         const lambda = params.lambda || params.mean || 1;
-        const L = Math.exp(-lambda);
-        const result: number[] = [];
         
-        let p = 1.0;
-        let k = 0;
-        let uIndex = 0;
-
-        while (uIndex < uniforms.length) {
-            p *= (uniforms[uIndex++] || 0.0001);
-            k++;
-            if (p <= L) {
-                result.push(k - 1);
-                p = 1.0;
-                k = 0;
+        return uniforms.map(u => {
+            let x = 0;
+            let p = Math.exp(-lambda); // Probabilidad inicial P(X=0)
+            let f = p;                 // Probabilidad acumulada inicial F(0)
+            
+            while (u > f) {
+                x++;
+                // Cálculo recursivo eficiente: P(x) = (lambda / x) * P(x-1)
+                p = (lambda * p) / x;
+                f += p;
+                
+                // Seguridad: Evitar bucles infinitos por precisión decimal
+                if (x > 100 && p < 0.000001) break;
             }
-        }
-        return result;
+            return x;
+        });
     }
 };
 
@@ -101,18 +117,21 @@ export const ErlangVariable: RandomVariableGenerator = {
     theory: "La distribución Erlang con parámetros $k$ y $\\lambda$ es la suma de $k$ variables exponenciales independientes con media $1/\\lambda$. La ecuación de generación es: $x = -\\frac{1}{\\lambda} \\ln(\\prod_{i=1}^{k} R_i)$.",
     complexity: "O(n * k)",
     generate: (uniforms, params) => {
-        const k_param = params.k || 2;
-        const lambda = params.lambda || (params.mean ? 1 / params.mean : 1);
-        const result: number[] = [];
+        const k = params.k || 1;
+        // Si el usuario da la media total, la media de cada fase es media/k
+        const phaseMean = params.mean ? (params.mean / k) : (params.lambda ? 1 / params.lambda : 1);
         
-        for (let i = 0; i <= uniforms.length - k_param; i += k_param) {
-            let prod = 1.0;
-            for (let j = 0; j < k_param; j++) {
-                prod *= (uniforms[i + j] || 0.0001);
+        const results: number[] = [];
+        for (let i = 0; i <= uniforms.length - k; i += k) {
+            let prod = 1;
+            for (let j = 0; j < k; j++) {
+                // Ajuste académico: Uso de u directo
+                prod *= (uniforms[i + j] || 0.000001);
             }
-            result.push((-1 / lambda) * Math.log(prod));
+            // x = - (1/λ) * ln(Π u_i)  donde 1/λ es la media de la fase
+            results.push(-phaseMean * Math.log(prod));
         }
-        return result;
+        return results;
     }
 };
 
@@ -214,8 +233,9 @@ export const NormalBoxMullerVariable: RandomVariableGenerator = {
         const result: number[] = [];
         
         for (let i = 0; i < uniforms.length - 1; i += 2) {
-            const u1 = uniforms[i] || 0.0001;
-            const u2 = uniforms[i + 1];
+            const u1 = uniforms[i] || 0.000001;
+            const u2 = uniforms[i + 1] || 0.000001;
+            
             const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
             result.push(z * stdDev + mean);
         }

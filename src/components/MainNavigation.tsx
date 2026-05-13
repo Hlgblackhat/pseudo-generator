@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Activity, FlaskConical } from 'lucide-react';
+import { Cpu, Activity, FlaskConical, Users } from 'lucide-react';
 
 const MainNavigation = () => {
   const location = useLocation();
@@ -9,6 +9,7 @@ const MainNavigation = () => {
     { name: 'Generador', path: '/laboratory', icon: Cpu, color: 'text-sky-500', activeBg: 'border-sky-500' },
     { name: 'Variables', path: '/variables', icon: Activity, color: 'text-violet-500', activeBg: 'border-violet-500' },
     { name: 'Pruebas', path: '/stats', icon: FlaskConical, color: 'text-orange-500', activeBg: 'border-orange-500' },
+    { name: 'Colas', path: '/queues', icon: Users, color: 'text-indigo-500', activeBg: 'border-indigo-500' },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, RefreshCw, BarChart3, Database } from 'lucide-react';
+import { Activity, RefreshCw, BarChart3, Database, Info } from 'lucide-react';
 import { getSharedNumbers, subscribeToSharedNumbers } from '../store/dataStore';
 import ExcelUploader from './ExcelUploader';
 import { availableVariables } from '../variables';
@@ -8,9 +8,6 @@ import VariablesResultTable from './VariablesResultTable';
 import VariablesCharts from './VariablesCharts';
 import FrequencyTable from './FrequencyTable';
 import AppHeader from './AppHeader';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
 import CustomSelect from './CustomSelect';
 import { createGenerator, GeneratorMethod } from '../engines';
 import { setSharedNumbers } from '../store/dataStore';
@@ -24,8 +21,8 @@ const VARIABLE_PRESETS = [
         engineParams: { seed: 42, a: 21, c: 3, m: 100 },
         count: 200,
         dist: 'exponential',
-        distParams: { lambda: 2 },
-        description: "Llegada de clientes: Motor Mixto (Hull-Dobell) + Distribución Exponencial."
+        distParams: { mean: 0.5 },
+        description: "Llegada de clientes: Motor Mixto (Hull-Dobell) + Distribución Exponencial (Media = 0.5)."
     },
     {
         id: 'quality',
@@ -51,7 +48,7 @@ const VARIABLE_PRESETS = [
 
 const PARAM_INSTRUCTIONS: Record<string, { title: string; hint: string }> = {
     'uniform': { title: "Uniforme (a, b)", hint: "Define un rango donde todos los valores tienen igual probabilidad. 'a' es el límite inferior y 'b' el superior." },
-    'exponential': { title: "Exponencial (λ)", hint: "λ (lambda) es la tasa de ocurrencia. Si llegan 2 clientes por minuto, λ=2. Genera tiempos de espera." },
+    'exponential': { title: "Exponencial (β)", hint: "β (beta) es el tiempo promedio entre eventos. Si llega un cliente cada 5 minutos, β=5. Modela tiempos de espera." },
     'poisson': { title: "Poisson (λ)", hint: "λ representa el promedio de eventos esperados en un tiempo fijo. El resultado es un número entero de eventos." },
     'erlang': { title: "Erlang (k, λ)", hint: "Modela procesos con fases. 'k' es el número de fases (debe ser entero). Útil para tiempos de servicio complejos." },
     'binomial': { title: "Binomial (n, p)", hint: "n = número de intentos, p = probabilidad de éxito (0 a 1). Cuenta cuántos éxitos ocurren en n pruebas." },
@@ -72,7 +69,7 @@ const VariablesLab = () => {
         a: 1,
         b: 10,
         c: 5,
-        mean: 0,
+        mean: 1,
         stdDev: 1
     });
 
@@ -127,6 +124,16 @@ const VariablesLab = () => {
 
 
     const currentGenerator = availableVariables[selectedVar];
+
+    // Cálculos estadísticos simplificados y seguros
+    const sampleSize = transformedNumbers.length;
+    const sampleMean = sampleSize > 0 
+        ? transformedNumbers.reduce((a, b) => a + b, 0) / sampleSize 
+        : 0;
+    
+    const sampleStdDev = sampleSize > 0 
+        ? Math.sqrt(transformedNumbers.reduce((a, b) => a + (b - sampleMean) ** 2, 0) / sampleSize) 
+        : 0;
 
     const uploaderNode = (
         <div className="flex flex-col items-center justify-center space-y-6 max-w-md mx-auto py-12">
@@ -260,8 +267,17 @@ const VariablesLab = () => {
                                 </div>
                             )}
 
-                            {(selectedVar === 'exponential' || selectedVar === 'poisson') && (
+                            {selectedVar === 'exponential' && (
                                 <div className="space-y-1.5">
+                                    {/* Ajuste: Para Exponencial, el usuario ingresa la Media (beta) segun Coss Bu */}
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Media (β)</label>
+                                    <input type="number" step="0.1" value={params.mean} onChange={e => setParams({...params, mean: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
+                                </div>
+                            )}
+
+                            {selectedVar === 'poisson' && (
+                                <div className="space-y-1.5">
+                                    {/* Para Poisson, la Tasa (lambda) es equivalente a la Media */}
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Tasa (λ)</label>
                                     <input type="number" step="0.1" value={params.lambda} onChange={e => setParams({...params, lambda: parseFloat(e.target.value)})} className="w-full bg-slate-50 dark:bg-bg-dark border border-slate-200 dark:border-border-subtle rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
                                 </div>
@@ -390,42 +406,65 @@ const VariablesLab = () => {
                                 {activeTab === 'overview' && (
                                     <div className="h-full flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         {/* Cards de Resumen */}
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
                                             <div className="p-6 bg-violet-600 text-white rounded-2xl shadow-lg shadow-violet-500/20 relative overflow-hidden group">
                                                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
-                                                <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80 relative z-10 text-violet-50">Estado del Modelo</h4>
-                                                <div className="text-4xl font-black relative z-10 tabular-nums leading-none mb-2">{transformedNumbers.length}</div>
-                                                <div className="text-xs font-bold opacity-70 uppercase relative z-10">Muestras Generadas</div>
+                                                <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80 relative z-10 text-violet-50 text-[9px]">Muestras Totales</h4>
+                                                <div className="text-3xl font-black relative z-10 tabular-nums leading-none mb-2">{transformedNumbers.length}</div>
+                                                <div className="text-[9px] font-bold opacity-70 uppercase relative z-10">Generadas con Éxito</div>
                                             </div>
 
                                             <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col justify-between">
-                                                <h4 className="text-xs font-black uppercase text-slate-400 mb-2 tracking-widest flex items-center gap-2">
-                                                    <div className="w-1.5 h-3 bg-violet-500 rounded-full" /> Resumen Teórico
-                                                </h4>
-                                                <div className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                                                        {currentGenerator.theory}
-                                                    </ReactMarkdown>
+                                                <div>
+                                                    <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest flex items-center gap-2">
+                                                        <div className="w-1.5 h-3 bg-violet-500 rounded-full" /> Media de Muestra
+                                                    </h4>
+                                                    <div className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+                                                        {sampleMean.toFixed(4)}
+                                                    </div>
                                                 </div>
-                                                <div className="mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/50">
-                                                    <p className="text-xs text-slate-500 dark:text-slate-500 leading-tight">
-                                                        {currentGenerator.name === 'Poisson' || currentGenerator.name === 'Binomial' || currentGenerator.name === 'Erlang' 
-                                                            ? `Método iterativo: El tiempo varía por parámetros.`
-                                                            : `Transformación directa: Costo constante por muestra.`}
+                                                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-1 italic">
+                                                    Objetivo: {selectedVar === 'exponential' ? (params.mean || 1).toFixed(1) : (params.lambda || 1).toFixed(1)}
+                                                </p>
+                                            </div>
+
+                                            <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                                                <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Desv. Estándar</h4>
+                                                <div className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+                                                    {sampleStdDev.toFixed(4)}
+                                                </div>
+                                                <div className="pt-2 border-t border-slate-50 dark:border-slate-800/50">
+                                                    <p className="text-[8px] text-slate-400 font-bold uppercase tracking-tighter">
+                                                        {selectedVar === 'exponential' ? "Debe ser ≈ Media" : "Variabilidad Real"}
                                                     </p>
                                                 </div>
                                             </div>
 
                                             <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                                                 <div>
-                                                    <h4 className="text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Método / Algoritmo</h4>
-                                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{currentGenerator.method}</p>
+                                                    <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Método / Algoritmo</h4>
+                                                    <p className="text-[11px] font-black text-violet-600 dark:text-violet-400 uppercase">{currentGenerator.method}</p>
                                                 </div>
                                                 <div className="pt-4 border-t border-slate-50 dark:border-slate-800">
-                                                    <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-400">
+                                                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-400">
                                                         <span>Complejidad</span>
                                                         <span className="text-violet-600 font-bold">{currentGenerator.complexity}</span>
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Panel de Teoría Académica (Restaurado y mejorado) */}
+                                        <div className="p-6 bg-slate-50 dark:bg-bg-dark/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 flex gap-6 items-start">
+                                            <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700 shrink-0">
+                                                <Info size={20} className="text-violet-500" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                                    Fundamento Teórico: {currentGenerator.name}
+                                                </h4>
+                                                <div className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                                                    {currentGenerator.theory.replace(/\$/g, '')}
                                                 </div>
                                             </div>
                                         </div>

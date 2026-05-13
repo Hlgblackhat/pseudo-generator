@@ -5,7 +5,7 @@ import { createGenerator } from '../engines';
 import type { GeneratorParams } from '../engines';
 // Removed unused motion import
 import ExcelUploader from './ExcelUploader';
-import { setSharedNumbers } from '../store/dataStore';
+import { setSharedNumbers, setSharedGeneratorConfig } from '../store/dataStore';
 import { exportGeneratorToExcel } from '../utils/excelExport';
 // Removed unused imports
 import {
@@ -127,6 +127,8 @@ function Laboratory() {
     
     const motor = createGenerator(params.method, { ...params, seed: semillaFinal });
     setMethodName(motor.name);
+    
+    setSharedGeneratorConfig({ ...params, seed: semillaFinal, methodName: motor.name });
     
     const resultado = motor.validateParams();
     const esPeriodoCompleto = resultado.isValid && (resultado.warnings?.length === 0 || !resultado.warnings);
@@ -301,6 +303,7 @@ function Laboratory() {
                         <ExcelUploader onNumbersExtracted={(nums) => {
                           setNumbers(nums);
                           setSharedNumbers(nums);
+                          setSharedGeneratorConfig(null);
                           setMethodName("Datos Importados (Excel)");
                           setRepeatState({ firstValue: null, repeatIndex: null });
                           setValidation({ errors: [], warnings: [], isFullPeriod: true });

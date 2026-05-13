@@ -3,7 +3,12 @@ import { Home, BookOpen, Github } from 'lucide-react';
 import { ModeToggle } from './mode-toggle';
 import MainNavigation from './MainNavigation';
 
-const AppHeader = () => {
+interface AppHeaderProps {
+    title?: string;
+    subtitle?: string;
+}
+
+const AppHeader = ({ title = "PseudoGen", subtitle = "v1.3.0 official" }: AppHeaderProps) => {
     return (
         <header className="px-6 py-3 border-b border-slate-200 dark:border-border-subtle bg-white/80 dark:bg-bg-card/80 backdrop-blur-xl flex justify-between items-center z-50 shrink-0 shadow-sm transition-colors w-full">
             <div className="flex items-center gap-3">
@@ -12,10 +17,10 @@ const AppHeader = () => {
                 </Link>
                 <div className="flex items-baseline gap-2 overflow-hidden">
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-widest uppercase truncate">
-                        Pseudo<span className="text-brand-secondary italic">Gen</span>
+                        {title.split(' ')[0]}<span className="text-brand-secondary italic">{title.split(' ')[1] || ''}</span>
                     </h1>
                     <span className="hidden sm:inline-block bg-slate-100 dark:bg-slate-800 text-[10px] font-black px-2 py-0.5 rounded border border-slate-200 dark:border-border-subtle text-slate-500 uppercase tracking-widest whitespace-nowrap">
-                        v1.2.0 official
+                        {subtitle}
                     </span>
                 </div>
             </div>

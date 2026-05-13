@@ -5,6 +5,22 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y e
 
 ---
 
+## [v1.3.0] - 2026-05-13
+
+### Agregado
+- **Módulo Laboratorio de Colas (ColasLab):** Implementación completa de simulación de Teoría de Colas basada en eventos discretos.
+- **Topologías de Red:** Soporte para configuraciones en Serie (S1→S2→S3), Paralelo (M/M/s), Múltiples colas independientes y sistemas Híbridos (Multiserie).
+- **Monitor en Vivo:** Visualizador SVG animado que muestra el flujo de clientes desde la entrada hasta los cajeros, con indicadores de estado (ocupado/libre).
+- **Estadísticas Avanzadas:** Reporte de longitud máxima de cola, servidores más rápidos/lentos, utilización del sistema y probabilidad de espera.
+- **Control de Velocidad Observable:** Nuevo control de velocidad escalado en "minutos de simulación por segundo real" para facilitar el análisis visual.
+
+### Corregido
+- Bug en el renderizado del reloj del monitor que mostraba la referencia de la función en lugar del tiempo calculado.
+- Inconsistencia en la lógica de selección de servidor para topologías de fila única.
+- Animación de llegada de clientes suavizada para representar mejor el tránsito desde la entrada a la cola.
+
+---
+
 ## [v1.2.0] - 2025-05-04
 
 ### Agregado
