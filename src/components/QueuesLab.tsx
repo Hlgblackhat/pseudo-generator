@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { 
-    Settings, Play, TrendingUp, Users, Clock, 
-    ArrowRight, CheckCircle2, HelpCircle, Star, AlertCircle,
-    Layout, GitCommit, GitPullRequest, Layers, Plus, X
+    Settings, TrendingUp, Users, Clock, 
+    CheckCircle2, HelpCircle, AlertCircle,
+    Plus, X
 } from 'lucide-react';
 import QueueVisualizer from './QueueVisualizer';
 import AppHeader from './AppHeader';

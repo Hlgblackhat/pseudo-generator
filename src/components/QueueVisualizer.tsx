@@ -71,7 +71,7 @@ export default function QueueVisualizer({ servers, customers, topology, isSimula
     const entities = useMemo(() => {
         const waitingLines: Record<string, number[]> = {};
         
-        return customers.map((c, idx) => {
+        return customers.map((c) => {
             const currentStageIdx = c.stages.findIndex(s => clock >= s.start && clock <= s.end);
             const currentStage = currentStageIdx !== -1 ? c.stages[currentStageIdx] : null;
             
