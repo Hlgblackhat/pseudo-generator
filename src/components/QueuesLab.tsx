@@ -247,25 +247,25 @@ export default function QueuesLab() {
             <main className="flex-1 flex overflow-hidden p-6 gap-6">
                 
                 <aside className="w-[30rem] flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
-                    <div className="bg-white dark:bg-bg-card rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-white/5 space-y-6 shrink-0">
+                    <div className="bg-white dark:bg-bg-card rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-white/5 space-y-6 shrink-0">
                         <div className="flex items-center gap-2 text-indigo-600">
                             <Settings size={18} />
-                            <h2 className="text-sm font-bold uppercase tracking-wider">Parámetros</h2>
+                            <h2 className="text-sm font-bold uppercase tracking-wider">Ajustes Generales</h2>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <InputField label="Días a Simular" value={daysToSimulate} onChange={setDaysToSimulate} />
-                            <InputField label="Horas Jornada" value={hoursPerDay} onChange={setHoursPerDay} />
+                            <InputField label="Horizonte (Días)" value={daysToSimulate} onChange={setDaysToSimulate} />
+                            <InputField label="Jornada (Horas)" value={hoursPerDay} onChange={setHoursPerDay} />
                         </div>
-                        <InputField label="Llegadas por Hora" value={arrivalsPerHour} onChange={setArrivalsPerHour} />
+                        <InputField label="Tasa de Arribo (λ)" value={arrivalsPerHour} onChange={setArrivalsPerHour} />
                     </div>
 
-                    <div className="bg-white dark:bg-bg-card rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-white/5 space-y-4 shrink-0">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Topología</h3>
+                    <div className="bg-white dark:bg-bg-card rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-white/5 space-y-4 shrink-0">
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Tipo de Sistema</h3>
                         <div className="grid grid-cols-2 gap-2">
-                            <TopologyMiniBtn active={topology === 'parallel'} onClick={() => setTopology('parallel')} label="Paralelo" />
-                            <TopologyMiniBtn active={topology === 'multiple'} onClick={() => setTopology('multiple')} label="Múltiples" />
-                            <TopologyMiniBtn active={topology === 'series'} onClick={() => setTopology('series')} label="Serie" />
-                            <TopologyMiniBtn active={topology === 'multi-series'} onClick={() => setTopology('multi-series')} label="Híbrido" />
+                            <TopologyMiniBtn active={topology === 'parallel'} onClick={() => setTopology('parallel')} label="Fila Única para todos" />
+                            <TopologyMiniBtn active={topology === 'multiple'} onClick={() => setTopology('multiple')} label="Filas Independientes" />
+                            <TopologyMiniBtn active={topology === 'series'} onClick={() => setTopology('series')} label="Filas en Cascada (Serie)" />
+                            <TopologyMiniBtn active={topology === 'multi-series'} onClick={() => setTopology('multi-series')} label="Sistema Mixto Complejo" />
                         </div>
                     </div>
 
@@ -273,14 +273,14 @@ export default function QueuesLab() {
                         <div className="flex justify-between items-center px-2">
                             <h2 className="text-xs font-black uppercase tracking-widest text-slate-500">Configuración de Cajeros</h2>
                             <button onClick={addServer} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600/10 text-indigo-600 rounded-full text-[10px] font-bold border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all">
-                                <Plus size={12}/> Agregar cajero
+                                <Plus size={12}/> Añadir Cajero
                             </button>
                         </div>
 
                         {serverConfigs.map((s, idx) => {
                             const colors = SERVER_COLORS[idx % SERVER_COLORS.length];
                             return (
-                                <div key={s.id} className={`p-6 bg-white dark:bg-bg-card rounded-3xl border-2 shadow-sm relative space-y-4 ${colors.border}`}>
+                                <div key={s.id} className={`p-6 bg-white dark:bg-bg-card rounded-xl border border-slate-200 dark:border-white/10 shadow-sm relative space-y-4`}>
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-3">
                                             <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black ${colors.bg} ${colors.text}`}>{s.id}</span>
@@ -355,59 +355,56 @@ export default function QueuesLab() {
                             );
                         })}
 
-                        <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-3xl space-y-2">
-                            <p className="text-[10px] text-amber-600 leading-relaxed">
-                                <span className="font-black uppercase mr-1">Nota:</span> 
-                                Las llegadas siguen un proceso de Poisson (tiempo entre llegadas exponencial). Cuando varios servidores están libres se elige uno con probabilidad igual — usando una variable aleatoria uniforme segmentada en tramos iguales.
-                            </p>
-                        </div>
+
                     </div>
 
                     <button 
                         onClick={runSimulation} disabled={isSimulating}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 sticky bottom-0"
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 sticky bottom-0"
                     >
-                        {isSimulating ? 'Simulando...' : 'Iniciar Simulación'}
+                        {isSimulating ? 'Procesando Eventos...' : 'Lanzar Simulación'}
                     </button>
                 </aside>
 
                 <section className="flex-1 flex flex-col gap-6 overflow-hidden">
-                    <div className="h-[45%] bg-white dark:bg-bg-card rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden relative">
+                    <div className="h-[45%] bg-white dark:bg-bg-card rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden relative">
                         <QueueVisualizer 
-                            servers={serverConfigs} customers={tableData.slice(0, 100)} topology={topology} 
-                            isSimulating={isSimulating} speed={speed} hoursPerDay={hoursPerDay}
+                            servers={serverConfigs} customers={tableData} topology={topology} 
+                            isSimulating={isSimulating} speed={speed} setSpeed={setSpeed} hoursPerDay={hoursPerDay}
                         />
                     </div>
 
                     <div className="grid grid-cols-4 gap-4">
-                        <MetricCard icon={<Clock size={20}/>} label="Tiempo de Espera" value={simulationStats ? `${simulationStats.avgWait.toFixed(2)} min` : '-'} color="indigo" />
-                        <MetricCard icon={<TrendingUp size={20}/>} label="Uso del Sistema" value={simulationStats ? `${(simulationStats.utilization * 100).toFixed(1)}%` : '-'} color="emerald" />
-                        <MetricCard icon={<Users size={20}/>} label="Clientes en Fila" value={insights ? insights.avgQueue.toFixed(2) : '-'} color="amber" />
-                        <MetricCard icon={<CheckCircle2 size={20}/>} label="Total Atendidos" value={tableData.length} color="rose" />
+                        <MetricCard 
+                            icon={<Clock size={20}/>} 
+                            label="Demora Promedio" 
+                            value={simulationStats ? (simulationStats.avgWait < 1 ? `${(simulationStats.avgWait * 60).toFixed(1)} seg` : `${simulationStats.avgWait.toFixed(2)} min`) : '-'} 
+                            color="indigo" 
+                            secondaryValue={simulationStats?.avgWait < 1 ? "Escala: Segundos" : "Escala: Minutos"}
+                        />
+                        <MetricCard icon={<TrendingUp size={20}/>} label="Factor de Uso (ρ)" value={simulationStats ? `${(simulationStats.utilization * 100).toFixed(1)}%` : '-'} color="emerald" />
+                        <MetricCard icon={<Users size={20}/>} label="Longitud de Fila (Lq)" value={insights ? insights.avgQueue.toFixed(2) : '-'} color="amber" />
+                        <MetricCard icon={<CheckCircle2 size={20}/>} label="Caudal de Clientes" value={tableData.length} color="rose" secondaryValue="Total Atendidos" />
                     </div>
 
-                    <div className="flex-1 bg-white dark:bg-bg-card rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden flex flex-col p-6">
+                    <div className="flex-1 bg-white dark:bg-bg-card rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden flex flex-col p-6">
                         <div className="flex justify-between items-center mb-4 text-slate-400">
-                            <h3 className="text-xs font-bold uppercase tracking-widest">Tabla de Resultados</h3>
-                            <div className="flex items-center gap-3">
-                                <span className="text-[10px] font-bold uppercase whitespace-nowrap">Velocidad ({speed} min/s)</span>
-                                <input type="range" min="1" max="120" value={speed} onChange={e => setSpeed(Number(e.target.value))} className="w-24 accent-indigo-600" />
-                            </div>
+                            <h3 className="text-xs font-bold uppercase tracking-widest">Cronología de Eventos</h3>
                         </div>
                         <div className="flex-1 overflow-auto custom-scrollbar">
                             <table className="w-full text-[10px] text-left">
                                 <thead className="sticky top-0 bg-white dark:bg-bg-card border-b border-slate-100 dark:border-white/5">
                                     <tr className="text-slate-400">
                                         <th className="p-2">ID</th>
-                                        <th className="p-2">Llegada</th>
-                                        <th className="p-2">Espera</th>
-                                        <th className="p-2">Servicio</th>
+                                        <th className="p-2">Arribo</th>
+                                        <th className="p-2">Wq (Espera)</th>
+                                        <th className="p-2">Ts (Servicio)</th>
                                         <th className="p-2">Salida</th>
-                                        <th className="p-2">Cajero</th>
+                                        <th className="p-2">Nodo Asignado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {tableData.slice(0, 100).map((r, i) => (
+                                    {tableData.map((r, i) => (
                                         <tr key={i} className="border-b border-slate-50 dark:border-white/5">
                                             <td className="p-2 font-bold text-indigo-600">{r.id}</td>
                                             <td className="p-2">{r.arrival.toFixed(2)}</td>
@@ -425,32 +422,32 @@ export default function QueuesLab() {
 
                 <aside className="w-96 flex flex-col gap-6 overflow-y-auto custom-scrollbar">
                     {/* INTERROGANTES - ACTUALIZADOS SEGÚN REQUERIMIENTOS */}
-                    <div className="bg-white dark:bg-bg-card rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+                    <div className="bg-white dark:bg-bg-card rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
                         <div className="flex items-center gap-2 text-indigo-600">
                             <HelpCircle size={20} />
-                            <h2 className="text-sm font-bold uppercase tracking-widest">Interrogantes del Profesor</h2>
+                            <h2 className="text-sm font-bold uppercase tracking-widest">Resumen del Análisis</h2>
                         </div>
                         <div className="space-y-4">
                             <QuestionCard 
-                                q="1. ¿Son suficientes los cajeros?" 
-                                a={simulationStats ? (simulationStats.utilization < 0.9 ? `SÍ. Utilización del ${(simulationStats.utilization * 100).toFixed(1)}%.` : 'NO. El sistema está al límite o saturado.') : 'Pendiente...'} 
+                                q="1. Estabilidad del sistema" 
+                                a={simulationStats ? (simulationStats.utilization < 0.9 ? `SÍ. Uso del ${(simulationStats.utilization * 100).toFixed(1)}%.` : 'NO. El sistema está saturado.') : 'Esperando datos...'} 
                                 status={simulationStats?.utilization < 0.9 ? 'ok' : 'error'} 
                             />
                             <QuestionCard 
-                                q="2. Tiempo promedio en el sistema" 
-                                a={simulationStats ? `${simulationStats.avgInSystem.toFixed(2)} min (Espera + Servicio).` : '-'} 
+                                q="2. Tiempo de Permanencia (W)" 
+                                a={simulationStats ? `${simulationStats.avgInSystem.toFixed(2)} min (Tiempo total en sistema).` : '-'} 
                             />
                             <QuestionCard 
-                                q="3. ¿Cuál es más rápido y lento?" 
-                                a={simulationStats ? `Rápido: ${simulationStats.fastest.name} (${simulationStats.fastest.avgService.toFixed(2)} min). Lento: ${simulationStats.slowest.name} (${simulationStats.slowest.avgService.toFixed(2)} min).` : '-'} 
+                                q="3. Desempeño de Cajeros" 
+                                a={simulationStats ? `El mejor es ${simulationStats.fastest.name} y el más lento es ${simulationStats.slowest.name}.` : '-'} 
                             />
                             <QuestionCard 
-                                q="4. Longitud de la cola (Máx / Prom)" 
-                                a={simulationStats ? `Máxima: ${simulationStats.maxQueue} clientes. Promedio: ${insights?.avgQueue.toFixed(2)} clientes.` : '-'} 
+                                q="4. Acumulación en Fila (Lq)" 
+                                a={simulationStats ? `Máximo Histórico: ${simulationStats.maxQueue}. Promedio: ${insights?.avgQueue.toFixed(2)}.` : '-'} 
                             />
                             <QuestionCard 
-                                q="Probabilidad de espera" 
-                                a={simulationStats ? `${(simulationStats.probWait * 100).toFixed(1)}% de los clientes hacen fila.` : '-'} 
+                                q="Probabilidad de Retraso (Pw)" 
+                                a={simulationStats ? `${(simulationStats.probWait * 100).toFixed(1)}% de probabilidad de hacer fila.` : '-'} 
                             />
                         </div>
                     </div>
@@ -468,11 +465,12 @@ const TopologyMiniBtn = ({ active, onClick, label }: any) => (
     <button onClick={onClick} className={`py-2 rounded-xl text-[9px] font-bold border transition-all ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/10 text-slate-400 hover:border-indigo-200'}`}>{label}</button>
 );
 
-const MetricCard = ({ icon, label, value, color }: any) => (
-    <div className="bg-white dark:bg-bg-card p-5 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-sm flex flex-col items-center text-center">
+const MetricCard = ({ icon, label, value, color, secondaryValue }: any) => (
+    <div className="bg-white dark:bg-bg-card p-5 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm flex flex-col items-center text-center">
         <div className={`p-2 rounded-xl mb-3 ${color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{icon}</div>
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
         <p className="text-xl font-black">{value}</p>
+        {secondaryValue && <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{secondaryValue}</p>}
     </div>
 );
 

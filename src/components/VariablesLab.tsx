@@ -143,9 +143,9 @@ const VariablesLab = () => {
             </div>
             
             <div className="space-y-2 text-center">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Generador en Reposo</h3>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Estación en Reposo</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Para transformar variables, se requieren números uniformes U(0,1). Puedes generarlos en el laboratorio principal o cargar tu propia muestra.
+                    Para ejecutar la transformación de variables, se requieren entradas estocásticas U(0,1). Provee datos desde el laboratorio base o mediante una carga de archivo local.
                 </p>
             </div>
 
@@ -170,7 +170,7 @@ const VariablesLab = () => {
                 <aside className="w-96 flex flex-col shrink-0 overflow-y-auto custom-scrollbar pr-2 gap-5 pb-5">
                     {/* Header del Sidebar */}
                     <div className="flex items-center justify-between px-1">
-                        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Panel de Control</h2>
+                        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Consola de Control</h2>
                     </div>
 
                     {/* Origen de Datos */}
@@ -179,7 +179,7 @@ const VariablesLab = () => {
                             <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-violet-500 border border-slate-100 dark:border-slate-700">
                                 <Database size={16} />
                             </div>
-                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Origen de Datos</h3>
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Insumo de Datos</h3>
                         </div>
                         
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 flex justify-between items-center transition-colors">
@@ -206,7 +206,7 @@ const VariablesLab = () => {
                             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 border border-amber-100 dark:border-amber-800/50">
                                 <Zap size={16} />
                             </div>
-                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Escenarios Integrados</h3>
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Modelos Preconfigurados</h3>
                         </div>
 
                         <div className="space-y-2">
@@ -235,7 +235,7 @@ const VariablesLab = () => {
                             <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-violet-500 border border-slate-100 dark:border-slate-700">
                                 <Activity size={16} />
                             </div>
-                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Transformación</h3>
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Conversión Estocástica</h3>
                         </div>
 
                         <div className="space-y-2">
@@ -357,7 +357,7 @@ const VariablesLab = () => {
                             disabled={baseUniforms.length === 0}
                             className="w-full mt-6 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest py-4.5 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md active:scale-[0.98]"
                         >
-                            <RefreshCw size={16} className={baseUniforms.length > 0 ? "animate-spin-slow" : ""} /> Transformar Muestra
+                            <RefreshCw size={16} className={baseUniforms.length > 0 ? "animate-spin-slow" : ""} /> Ejecutar Conversión
                         </button>
                     </div>
                 </aside>
@@ -409,7 +409,7 @@ const VariablesLab = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
                                             <div className="p-6 bg-violet-600 text-white rounded-2xl shadow-lg shadow-violet-500/20 relative overflow-hidden group">
                                                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
-                                                <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80 relative z-10 text-violet-50 text-[9px]">Muestras Totales</h4>
+                                                <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80 relative z-10 text-violet-50 text-[9px]">Población (N)</h4>
                                                 <div className="text-3xl font-black relative z-10 tabular-nums leading-none mb-2">{transformedNumbers.length}</div>
                                                 <div className="text-[9px] font-bold opacity-70 uppercase relative z-10">Generadas con Éxito</div>
                                             </div>
@@ -417,7 +417,7 @@ const VariablesLab = () => {
                                             <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col justify-between">
                                                 <div>
                                                     <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest flex items-center gap-2">
-                                                        <div className="w-1.5 h-3 bg-violet-500 rounded-full" /> Media de Muestra
+                                                        <div className="w-1.5 h-3 bg-violet-500 rounded-full" /> Centroide (X̄)
                                                     </h4>
                                                     <div className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
                                                         {sampleMean.toFixed(4)}
@@ -429,7 +429,7 @@ const VariablesLab = () => {
                                             </div>
 
                                             <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-                                                <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Desv. Estándar</h4>
+                                                <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Varianza Operativa</h4>
                                                 <div className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
                                                     {sampleStdDev.toFixed(4)}
                                                 </div>
@@ -442,7 +442,7 @@ const VariablesLab = () => {
 
                                             <div className="p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                                                 <div>
-                                                    <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Método / Algoritmo</h4>
+                                                    <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Topología del Motor</h4>
                                                     <p className="text-[11px] font-black text-violet-600 dark:text-violet-400 uppercase">{currentGenerator.method}</p>
                                                 </div>
                                                 <div className="pt-4 border-t border-slate-50 dark:border-slate-800">

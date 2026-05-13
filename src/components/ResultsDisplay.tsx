@@ -125,7 +125,7 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                     <div>
                         <div className="flex items-center gap-3">
                             <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
-                                Flujo de Datos
+                                Números Generados
                             </h3>
                             {isGenerating ? (
                                 <div className={`flex items-center gap-2 px-2.5 py-1 border rounded-full ${
@@ -135,7 +135,7 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                                 }`}>
                                     <div className={`w-1 h-1 rounded-full ${isPaused ? 'bg-amber-500' : 'bg-sky-500 animate-pulse'}`} />
                                     <span className={`text-[9px] font-black uppercase tracking-widest ${isPaused ? 'text-amber-600 dark:text-amber-400' : 'text-sky-600 dark:text-sky-400'}`}>
-                                        {isPaused ? 'Pausado' : 'Muestreando'}
+                                        {isPaused ? 'En Pausa' : 'Iterando'}
                                     </span>
                                 </div>
                             ) : (
@@ -166,7 +166,7 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
                         <span className="text-4xl font-black text-black dark:text-white leading-none tabular-nums">
                             {numbers.length}
                         </span>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest mt-1">Iteraciones</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-400 font-black uppercase tracking-widest mt-1">Total de elementos</p>
                     </div>
                 </div>
             </div>
@@ -207,11 +207,11 @@ const ResultsDisplay: FC<ResultsDisplayProps> = ({ numbers, repeatIndex, methodN
 
                                             {/* Etiqueta para el valor semilla original */}
                                             {esPrimero && (
-                                                <span className="text-[7px] font-black bg-green-600 text-white px-1 rounded absolute bottom-1 right-1 uppercase">ROOT</span>
+                                                <span className="text-[7px] font-black bg-green-600 text-white px-1 rounded absolute bottom-1 right-1 uppercase">SEMILLA</span>
                                             )}
                                             {/* Etiqueta para marcar el inicio de un ciclo detectado */}
                                             {esRepeticion && (
-                                                <span className="text-[7px] font-black bg-rose-600 text-white px-1 rounded absolute bottom-1 right-1 uppercase animate-pulse">LOOP</span>
+                                                <span className="text-[7px] font-black bg-rose-600 text-white px-1 rounded absolute bottom-1 right-1 uppercase animate-pulse">PERIODO</span>
                                             )}
                                         </motion.div>
                                     );

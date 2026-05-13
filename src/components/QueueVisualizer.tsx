@@ -19,10 +19,11 @@ interface QueueVisualizerProps {
     topology: string;
     isSimulating: boolean;
     speed: number;
+    setSpeed: (speed: number) => void;
     hoursPerDay: number;
 }
 
-export default function QueueVisualizer({ servers, customers, topology, isSimulating, speed, hoursPerDay }: QueueVisualizerProps) {
+export default function QueueVisualizer({ servers, customers, topology, isSimulating, speed, setSpeed, hoursPerDay }: QueueVisualizerProps) {
     const [clock, setClock] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
     
@@ -205,19 +206,41 @@ export default function QueueVisualizer({ servers, customers, topology, isSimula
                 ))}
             </svg>
 
-            <div className="absolute bottom-6 left-6 flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
-                <Clock size={16} className="text-indigo-600" />
-                <span className="text-sm font-black tabular-nums">{timeStr(clock, hoursPerDay)}</span>
-                <div className="w-px h-4 bg-slate-200" />
-                <Users size={16} className="text-indigo-600" />
-                <span className="text-sm font-black">{entities.filter(e => e.state === 'waiting').length}</span>
+            <div className="absolute bottom-6 left-6 flex items-center gap-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm border border-slate-100 dark:border-white/5 z-20">
+                <div className="flex flex-col">
+                    <span className="text-[7px] font-black uppercase text-slate-400 tracking-tighter">Reloj de Jornada</span>
+                    <div className="flex items-center gap-2">
+                        <Clock size={12} className="text-indigo-600" />
+                        <span className="text-xs font-black tabular-nums">{timeStr(clock, hoursPerDay)}</span>
+                    </div>
+                </div>
+                <div className="w-px h-5 bg-slate-100 dark:bg-slate-700" />
+                <div className="flex flex-col">
+                    <span className="text-[7px] font-black uppercase text-slate-400 tracking-tighter">Espera</span>
+                    <div className="flex items-center gap-2">
+                        <Users size={12} className="text-indigo-600" />
+                        <span className="text-xs font-black">{entities.filter(e => e.state === 'waiting').length}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="absolute bottom-6 right-6 flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-sm border border-slate-100 dark:border-white/5 z-20">
+                <div className="flex flex-col items-end">
+                    <span className="text-[7px] font-black uppercase text-slate-400 tracking-tighter">Velocidad</span>
+                    <span className="text-[9px] font-bold text-indigo-600 uppercase">{speed}x</span>
+                </div>
+                <input 
+                    type="range" min="1" max="120" value={speed} 
+                    onChange={e => setSpeed(Number(e.target.value))} 
+                    className="w-20 h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                />
             </div>
 
             {isFinished && customers.length > 0 && (
-                <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
-                    <div className="bg-white dark:bg-slate-800 px-6 py-3 rounded-2xl shadow-xl border border-slate-200 dark:border-white/5 flex items-center gap-3">
-                        <CheckCircle2 size={18} className="text-emerald-500" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Simulación Completa</span>
+                <div className="absolute top-6 right-6 animate-in fade-in slide-in-from-top-4 duration-500 z-30">
+                    <div className="bg-emerald-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-3">
+                        <CheckCircle2 size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Simulación Completa</span>
                     </div>
                 </div>
             )}
@@ -228,8 +251,9 @@ export default function QueueVisualizer({ servers, customers, topology, isSimula
 // Helper para el string del tiempo (se asume que existe o se añade aquí)
 const timeStr = (clock: number, hoursPerDay: number) => {
     const totalMin = hoursPerDay * 60;
+    const day = Math.floor(clock / totalMin) + 1;
     const currentMin = clock % totalMin;
     const h = Math.floor(currentMin / 60);
     const m = Math.floor(currentMin % 60);
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    return `Día ${day} · ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 };
